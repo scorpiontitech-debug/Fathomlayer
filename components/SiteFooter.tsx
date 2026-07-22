@@ -46,6 +46,9 @@ export function SiteFooter() {
           <Link href="/privacy" className="text-dim transition-colors hover:text-ink">
             Privacy
           </Link>
+          <Link href="/contact" className="text-dim transition-colors hover:text-ink">
+            Contact
+          </Link>
         </nav>
       </div>
     </footer>

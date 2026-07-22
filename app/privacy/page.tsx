@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -31,7 +32,11 @@ export default function PrivacyPage() {
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Contact</h2>
         <p className="text-[var(--fl-dim)]">
-          Privacy questions can be sent through the contact listed at fathomlayer.com.
+          Privacy questions, corrections and removal requests can be sent through the{" "}
+          <Link href="/contact" className="text-ink underline-offset-4 hover:underline">
+            contact page
+          </Link>
+          .
         </p>
       </section>
     </article>

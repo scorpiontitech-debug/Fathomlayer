@@ -34,6 +34,7 @@ ${categoryLines || "- Catalog in curation — first cluster: local AI hardware."
 - [Methodology](${SITE_URL}/methodology): how the design score works and why placement is not for sale.
 - [About](${SITE_URL}/about): who runs the index.
 - [Affiliate disclosure](${SITE_URL}/affiliate-disclosure): how the site is funded.
+- [Contact](${SITE_URL}/contact): report an incorrect specification, price or link.
 `;
 
   return new Response(body, {

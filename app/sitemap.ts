@@ -54,6 +54,7 @@ export default async function sitemap({
       entry("/about", undefined, "monthly", 0.4),
       entry("/affiliate-disclosure", undefined, "yearly", 0.2),
       entry("/privacy", undefined, "yearly", 0.2),
+      entry("/contact", undefined, "yearly", 0.2),
     ];
   }
 
