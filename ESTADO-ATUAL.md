@@ -143,7 +143,7 @@ e `link_clicks` são internas, sem policy pública por design).
 ### Design (nível Awwwards)
 Dark mode estrito, acento único `#0052FF`, Space Grotesk / Instrument Sans / JetBrains Mono.
 Peça 3D em **Three.js puro** (~8 draw calls, física com springs, dolly de câmera em Z),
-cursor autoral, tilt 3D, botões magnéticos, spotlight, marquee, grain, View Transitions,
+cursor autoral, tilt 3D, botões magnéticos, spotlight, marquee, View Transitions,
 reveals scroll-driven em CSS nativo.
 
 > **Decisão importante sobre movimento:** o site **não** usa `prefers-reduced-motion` do SO

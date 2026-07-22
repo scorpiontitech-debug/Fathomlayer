@@ -112,16 +112,10 @@ kbd {
   color: var(--fl-dim);
 }
 
-/* Grain de filme: textura sobre o dark inteiro, sem custo de layout */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  pointer-events: none;
-  opacity: 0.045;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* O grain de filme sobre o site inteiro foi removido por decisão do operador
+   (2026-07-22): a textura lia como veludo, não como película. O dark fica
+   limpo. Se um dia voltar, o overlay era um body::after fixo com ruído
+   fractal SVG — está no histórico do git. */
 
 /* ============================================================
    Motivo visual: "layers" — campo em perspectiva atrás do hero
