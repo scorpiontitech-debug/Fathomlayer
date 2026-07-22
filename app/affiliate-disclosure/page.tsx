@@ -40,7 +40,12 @@ export default function AffiliateDisclosurePage() {
         <p className="leading-relaxed text-dim">
           Links that may earn a commission are labeled on the pages themselves and go through
           an internal redirect (<code className="font-mono text-sm">/out/…</code>), which we
-          use to measure clicks in aggregate. No client-side tracking scripts are involved.
+          use to measure clicks in aggregate. No client-side tracking scripts are involved —
+          what is and is not stored is set out in the{" "}
+          <Link href="/privacy" className="text-ink underline-offset-4 hover:underline">
+            privacy policy
+          </Link>
+          .
         </p>
       </section>
 
