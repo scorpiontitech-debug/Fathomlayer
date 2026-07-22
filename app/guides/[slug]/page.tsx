@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EditorialArticle } from "@/components/editorial";
-import { getEditorialPageBySlug, getEditorialPages } from "@/lib/queries";
+import {
+  getEditorialPageBySlug,
+  getEditorialPages,
+  getRelatedEditorialByTags,
+} from "@/lib/queries";
 
 export const revalidate = 86400;
 export const dynamicParams = true;
@@ -34,5 +38,13 @@ export default async function GuidePage({
   const { slug } = await params;
   const page = await getEditorialPageBySlug(slug);
   if (!page || page.content_type !== "guide") notFound();
-  return <EditorialArticle page={page} listLabel="Buying guides" listPath="/guides" />;
+  const related = await getRelatedEditorialByTags(page.tags, page.id);
+  return (
+    <EditorialArticle
+      page={page}
+      listLabel="Buying guides"
+      listPath="/guides"
+      related={related}
+    />
+  );
 }

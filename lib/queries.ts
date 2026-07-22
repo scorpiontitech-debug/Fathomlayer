@@ -185,6 +185,36 @@ export async function getRelatedEditorialPages(
     .map(({ page }) => page);
 }
 
+// Leitura relacionada entre páginas editoriais (content-spec §8). Os verbetes
+// já terminam com "See also: x, y, z" em texto puro — sem link. Este bloco
+// transforma essa relação em navegação de verdade, por interseção de tags,
+// sem depender de editar o markdown de cada página.
+export async function getRelatedEditorialByTags(
+  tags: string[],
+  excludeId: string,
+  limit = 5
+): Promise<EditorialPage[]> {
+  const { data, error } = await supabasePublic()
+    .from("editorial_pages")
+    .select("*")
+    .neq("id", excludeId);
+  if (error) {
+    console.error("[fathom-layer] getRelatedEditorialByTags:", error.message);
+    return [];
+  }
+
+  const tagSet = new Set(tags);
+  return (data ?? [])
+    .map((page) => ({
+      page,
+      overlap: page.tags.filter((t) => tagSet.has(t)).length,
+    }))
+    .filter((r) => r.overlap > 0)
+    .sort((a, b) => b.overlap - a.overlap)
+    .slice(0, limit)
+    .map(({ page }) => page);
+}
+
 // Buscador de Alternativas (content-spec 7.2): mesma categoria + interseção
 // de tags + design_score próximo — query simples sobre dados existentes,
 // nunca sistema de recomendação complexo.

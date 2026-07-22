@@ -87,14 +87,28 @@ export function EditorialList({
   );
 }
 
+const EDITORIAL_PATH: Record<string, string> = {
+  glossary: "/glossary",
+  guide: "/guides",
+  launch: "/radar",
+};
+
+const EDITORIAL_LABEL: Record<string, string> = {
+  glossary: "Glossary",
+  guide: "Guide",
+  launch: "Radar",
+};
+
 export function EditorialArticle({
   page,
   listLabel,
   listPath,
+  related = [],
 }: {
   page: EditorialPage;
   listLabel: string;
   listPath: string;
+  related?: EditorialPage[];
 }) {
   return (
     <article className="space-y-8">
@@ -117,6 +131,29 @@ export function EditorialArticle({
         className="prose-nl max-w-2xl leading-relaxed [&_a]:text-accent-bright [&_a]:underline-offset-4 hover:[&_a]:underline [&_code]:font-mono [&_code]:text-sm [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mt-6 [&_h3]:font-display [&_h3]:font-semibold [&_li]:my-1 [&_p]:my-4 [&_p]:text-dim [&_strong]:text-ink [&_table]:w-full [&_table]:border-collapse [&_td]:border-b [&_td]:border-edge [&_td]:py-2 [&_th]:border-b [&_th]:border-edge-strong [&_th]:py-2 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-dim"
         dangerouslySetInnerHTML={{ __html: renderMarkdown(page.body_markdown) }}
       />
+
+      {related.length > 0 ? (
+        <section className="max-w-2xl space-y-3 pt-4">
+          <h2 className="font-display text-lg font-semibold tracking-tight">Related</h2>
+          <ul className="divide-y divide-edge border-y border-edge">
+            {related.map((item) => (
+              <li key={item.id}>
+                <Link
+                  href={`${EDITORIAL_PATH[item.content_type] ?? "/glossary"}/${item.slug}`}
+                  className="group flex items-center justify-between gap-4 py-3.5"
+                >
+                  <span className="text-sm leading-snug text-dim transition-colors group-hover:text-ink">
+                    {item.title}
+                  </span>
+                  <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.14em] text-faint">
+                    {EDITORIAL_LABEL[item.content_type] ?? item.content_type}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </article>
   );
 }
