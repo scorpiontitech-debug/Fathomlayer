@@ -112,10 +112,6 @@ Consenso 2026: cursor customizado sozinho não é mais suficiente. O que diferen
 - **Cartão de Spec Compartilhável**: gerado via `next/og`, formato quadrado/social, specs + `design_score` + logo discreto — pensado pra Reddit/X, não pra decoração da própria página
 - **Motor de Comparação Livre**: seletor de 2-4 itens de qualquer categoria + tabela de comparação em tempo real — rota sempre `noindex` (ver rotas inteligentes)
 
-## 7. Performance como requisito de design, não só técnico
-
-Regra de ouro válida em qualquer stack: nenhum efeito visual vale a pena se causar frame drop em mobile. Testar sempre em dispositivo médio, nunca só no monitor de desenvolvimento — especialmente relevante aqui pela escala de páginas pSEO.
-
 ## 8. Performance como requisito de design, não só técnico
 
 Regra de ouro válida em qualquer stack: nenhum efeito visual vale a pena se causar frame drop em mobile. Testar sempre em dispositivo médio, nunca só no monitor de desenvolvimento. Nas páginas flagship isso é orçamento de draw call (seção 5.2); nas páginas pSEO é Core Web Vitals puro (seção 5.3) — os dois são não-negociáveis, por razões diferentes.

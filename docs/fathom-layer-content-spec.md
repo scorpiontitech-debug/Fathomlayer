@@ -139,6 +139,7 @@ Avaliação técnica antes de qualquer uma dessas entrar em desenvolvimento:
 - [ ] Títulos de seção em formato de pergunta direta quando fizer sentido (ex: "Qual hardware roda Llama 70B localmente?"), não título genérico
 - [ ] `last_verified_at` exibido (selo de verificação, seção 7.4)
 - [ ] Dado numérico verificado antes de adjetivo (regra já existente do Quality Gate, seção 5)
+- [ ] **8-12 links internos contextuais por página**, apontando para categoria, comparativos relacionados e `editorial_pages` relevantes — nunca página órfã sem link de entrada; distribui autoridade entre páginas novas e estabiliza posicionamento de cauda longa
 
 ## 9. Ângulo de ataque em categorias de alta saturação editorial
 

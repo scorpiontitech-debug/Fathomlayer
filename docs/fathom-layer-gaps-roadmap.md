@@ -299,10 +299,55 @@ O campo `links.program_name` já existente no schema comporta isso sem mudança 
 
 ---
 
+## 17. Distribuição ativa fora do domínio — MVP (baixo custo, alto retorno de citação)
+
+**Problema:** newsletter sozinha é 1 única fonte de distribuição — pesquisa de mercado mostra que marcas com 5+ fontes de distribuição têm 78% de cobertura em resposta de IA generativa, contra 18% com 1 fonte só. Sem presença ativa fora do próprio site, o Fathom Layer fica invisível pro tipo de citação (Reddit, YouTube) que os motores de IA mais usam como fonte.
+
+**Solução, sem custo de infraestrutura, só tempo do operador:**
+- **Participação real (não spam) nas comunidades já mapeadas do cluster inicial:** r/LocalLLaMA, r/homelab, r/selfhosted — responder dúvida real linkando conteúdo do Fathom Layer só quando genuinamente relevante, nunca link solto sem contexto
+- **YouTube simples:** vídeo curto de review/demo por item de destaque (não precisa produção alta, o mesmo `design_score`/`editorial_notes` já viram roteiro) — Reddit e YouTube juntos cobrem 2 das fontes mais citadas por IA generativa segundo a pesquisa
+- Newsletter (já no roadmap) continua sendo a 3ª fonte
+
+## 18. Rastreamento de citação por IA generativa — Camada 2 (depois que houver conteúdo publicado o suficiente pra medir)
+
+**Problema:** `link_clicks` mede clique, não citação — o Fathom Layer pode estar sendo citado pelo ChatGPT/Perplexity/Gemini sem nenhum sinal disso aparecer no painel atual.
+
+**Solução:** checagem manual periódica (busca direta pelo nome da marca + termos-chave do cluster nos próprios motores de IA) até o orçamento permitir ferramenta paga dedicada (ex: Profound, Otterly) — entra como seção do painel (`fathom-layer-dashboard-spec.md` 2.5, Analytics) quando a automação existir; até lá, é checagem manual registrada em log simples.
+
+## 19. Analytics do site e cadência de publicação — MVP
+
+**Ferramenta:** Plausible ou Simple Analytics (privacy-friendly, leve, sem cookie banner necessário) — nunca Google Analytics (contradiz a filosofia de performance/privacidade já definida) e, por ironia de nome, nunca "Fathom Analytics" especificamente (colide com a própria marca da plataforma).
+
+**Cadência de publicação, amarrada à regra de ritmo já definida (item #11):** meta inicial de 10-25 itens novos indexáveis por semana no total (não por categoria), ajustada pela mesma regra de saúde de indexação (corta pela metade <50%, para <30%). Isso dá ao operador uma meta prática de curadoria semanal, não só um teto técnico.
+
+---
+
+## 20. Canal de contato mínimo — MVP
+
+**Problema:** mesmo num modelo "zero suporte complexo", vai chegar reporte de link quebrado, preço errado ou pedido de remoção de dado — sem canal nenhum, isso vira reclamação pública (Reddit/redes) em vez de correção silenciosa.
+
+**Solução:** página `/contact` estática com formulário simples (nome, e-mail, mensagem, campo opcional "URL relacionada") ou só um e-mail direto (`contact@fathomlayer.com`) — sem necessidade de sistema de ticket. Política de resposta implícita: melhor esforço, sem SLA prometido. Linkado no rodapé junto com `/privacy`/`/affiliate-disclosure`. Reportes de dado incorreto entram na Fila de Revisão (seção 2.2 do dashboard-spec) como origem "reporte de usuário" — mesma fila unificada, não processo separado.
+
+## 21. Regra de arquivamento de item — MVP
+
+**Problema:** quando um produto sai de linha ou um software fecha, não há regra de o que a página faz — e isso afeta SEO diretamente (410 sem necessidade derruba equity de link acumulado; manter live com dado errado destrói confiança).
+
+**Solução:** ao mudar `status` para `archived`, a página **permanece live (200), nunca 410/301 automático** — só se decide remoção manual em caso de pedido legal via `/contact`. O badge semântico âmbar "descontinuado" (já definido no design system, seção 2) substitui o verde "disponível", o link de afiliado é removido/trocado por nota "não disponível para compra", e o item some do cálculo de `active_listing_count` (o trigger de Quality Gate já só conta `published`, então isso já funciona sem mudança de schema). Preserva o valor de SEO/GEO acumulado da página em vez de descartar.
+
+## 22. Plano de resposta a pico de tráfego inesperado — MVP (mitigação, não construção)
+
+**Problema:** o Fathom Layer está no Vercel Hobby por decisão consciente — o cenário mais provável de estourar limite não é crescimento gradual, é um pico repentino (viral no Reddit/Hacker News, menção em vídeo grande).
+
+**Mitigação já embutida na arquitetura:** páginas com ISR servem do cache de edge após a primeira geração — um pico de tráfego bate majoritariamente no CDN, não reexecuta função nem faz nova query ao banco por requisição. Isso já reduz bastante a exposição real a estouro de limite de execução, mesmo no Hobby.
+
+**Runbook simples para quando acontecer:** 1) checar % de uso no painel da Vercel assim que Plausible mostrar pico incomum de tráfego em tempo real; 2) se estiver perto do limite, upgrade para Pro imediatamente (já registrado como decisão no README — não é esperar o aviso automático da Vercel, que pode vir tarde demais pra evitar a queda). Não precisa de automação nem alerta customizado no MVP — checagem manual no momento do pico é suficiente dado o volume inicial esperado.
+
+---
+
 ---
 
 ## Resumo de priorização para o Claude Code
 
-**Bloqueante para MVP (implementar junto com o schema base):** #1 staging de ingestão, #2 fila de revisão (`pending_review`), #4 rastreamento de cliques (`/out/{link_id}`), #5 `launch_phase` nas categorias, #7 página de metodologia, #8 disclosure legal, `editorial_pages` (glossário/guias/radar de lançamentos), `price_from` para o recomendador por orçamento, exibição do selo de verificação (`last_verified_at`), #11 segurança operacional de pSEO (gate de dados mínimo + ritmo de publicação amarrado à indexação), #16 estratégia de rede de afiliados (PartnerStack/Impact como motor principal, Amazon como cobertura secundária, W-8BEN antes de ativar redes americanas).
+**Bloqueante para MVP (implementar junto com o schema base):** #1 staging de ingestão, #2 fila de revisão (`pending_review`), #4 rastreamento de cliques (`/out/{link_id}`), #5 `launch_phase` nas categorias, #7 página de metodologia, #8 disclosure legal, `editorial_pages` (glossário/guias/radar de lançamentos), `price_from` para o recomendador por orçamento, exibição do selo de verificação (`last_verified_at`), #11 segurança operacional de pSEO (gate de dados mínimo + ritmo de publicação amarrado à indexação), #16 estratégia de rede de afiliados (PartnerStack/Impact como motor principal, Amazon como cobertura secundária, W-8BEN antes de ativar redes americanas), #17 distribuição ativa (Reddit/YouTube), #19 analytics (Plausible/Simple Analytics) + cadência de publicação, #20 canal de contato, #21 regra de arquivamento (manter live, nunca 410 automático), #22 runbook de pico de tráfego.
 
-**Fase 2 (depois de tração no cluster inicial):** #3 monitoramento de link rot, #6 newsletter/licenciamento de dados, #9 otimização de custo de IA por camada de modelo, #10 "My Stack" (contas de usuário público), #12 API freemium, #13 servidor MCP próprio curado por segurança, #14 UGC controlado (reviews via conta leve), #15 `category_facets` (Recomendador Universal).
+**Fase 2 (depois de tração no cluster inicial):** #3 monitoramento de link rot, #6 newsletter/licenciamento de dados, #9 otimização de custo de IA por camada de modelo, #10 "My Stack" (contas de usuário público), #12 API freemium, #13 servidor MCP próprio curado por segurança, #14 UGC controlado (reviews via conta leve), #15 `category_facets` (Recomendador Universal), #18 rastreamento de citação por IA.

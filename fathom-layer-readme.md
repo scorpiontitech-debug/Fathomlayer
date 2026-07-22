@@ -17,7 +17,7 @@
 **Antes de tudo: leia `fathom-layer-gaps-roadmap.md` seção 0 (Sequenciamento em Camadas).** O lançamento real é só a Camada 1 ali definida — os demais documentos descrevem o produto completo, mas construir tudo de uma vez não é o objetivo. Ignore, por enquanto, qualquer item marcado Camada 2/3 mesmo que apareça em outros documentos.
 
 1. **Banco de dados primeiro:** aplicar `fathom_layer_schema.sql` completo no Supabase, depois só as alterações da Camada 1 do roadmap
-2. **Rotas base do Next.js:** estrutura de `/[pilar]/[categoria]/[slug]`, `/out/{link_id}` (redirect + tracking), páginas estáticas legais (`/privacy`, `/affiliate-disclosure`, `/methodology`, `/about`) — sem estilo avançado ainda, só a arquitetura de dados funcionando ponta a ponta
+2. **Rotas base do Next.js:** estrutura de `/[pilar]/[categoria]/[slug]`, `/out/{link_id}` (redirect + tracking), páginas estáticas legais (`/privacy`, `/affiliate-disclosure`, `/methodology`, `/about`, `/contact`) — sem estilo avançado ainda, só a arquitetura de dados funcionando ponta a ponta
 3. **Pipeline de ingestão simples + fila de revisão:** `/admin/review` funcional na forma mínima (seção 2.2 do `fathom-layer-dashboard-spec.md`), mesmo que feio — é o que faz o site ter conteúdo real
 4. **Aplicar o design system:** só depois que existe conteúdo real para estilizar — não antes. Base "quiet luxury" sem peça 3D ainda (Camada 2)
 5. **1 ferramenta interativa (Calculadora de Hardware) e polish visual básico**
