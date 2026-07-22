@@ -89,15 +89,42 @@ Explicitly name categories you recommend **against** entering first, and why.
 ## Part 2 — The product shortlist
 
 For each recommended category, propose **5–8 candidate products**, ranked.
+
+**Entry filter — apply before ranking.** A candidate must clear all three:
+
+1. Meaningful, sustained search demand for the product itself. Products
+   nobody searches for are excluded regardless of how easy they would be to
+   rank for.
+2. A real affiliate program, on a named network, with a stated commission.
+   No program means the page cannot pay for itself — exclude it.
+3. At least one question-shaped query around the product where the current
+   top results are thin, stale or absent.
+
+State which candidates you considered and rejected at this filter, and on
+which of the three they failed. That list is as useful to me as the
+shortlist.
+
 Rank them by a composite of the four factors below — and **show the score
 for each factor**, not just the final ordering:
 
 1. **Search demand** — monthly volume for the product name and for the
    question-shaped queries it answers
-2. **Winnability** — can a zero-authority domain realistically rank for the
-   long-tail queries around this product within 6 months? A product with
-   500 searches/month and weak incumbent coverage is worth more here than
-   one with 50,000 and Wirecutter in position one.
+2. **Winnability of the query angle** — not of the product. The product
+   should be one people actively search for; the *query* we compete on is
+   the specific question the incumbents answer badly. Score: can a
+   zero-authority domain realistically rank for those question-shaped
+   queries within 6 months?
+
+   Worked example of the pattern I want: a mainstream, high-demand machine
+   competing not on "<product> review" — unwinnable — but on "<product>
+   running a 70B model locally", where general tech media has no depth.
+   High-demand product, low-competition angle.
+
+   **Do not propose obscure products as a way to reduce competition.** A
+   product with 200 searches a month is not a cheaper way in; it is a page
+   that costs the same to produce and returns almost nothing. Obscure
+   brands also tend to have no affiliate program, which compounds the
+   problem.
 3. **Affiliate availability** — is there an actual program, with what
    commission, on which network. A product nobody will pay a commission on
    is a cost centre.
