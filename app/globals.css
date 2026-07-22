@@ -1,0 +1,435 @@
+@import "tailwindcss";
+
+/* ============================================================
+   FATHOM LAYER — design tokens (design system seções 2–3)
+   Dark mode estrito, acento único #0052FF, tipografia como
+   hierarquia, números em mono/tabular.
+   ============================================================ */
+
+:root {
+  --fl-bg: #0a0a0b;
+  --fl-surface: #131316;
+  --fl-surface-2: #17171b;
+  --fl-edge: #1c1c1f;
+  --fl-edge-strong: #2a2a30;
+  --fl-accent: #0052ff;
+  --fl-accent-bright: #4d84ff;
+  --fl-accent-soft: rgba(0, 82, 255, 0.1);
+  --fl-ink: #f5f5f7;
+  --fl-dim: #8a8a8e;
+  --fl-faint: #55555a;
+  --fl-ok: #4e9e77;
+  --fl-warn: #b3873f;
+
+  /* Curvas cinematográficas (design system 5.2) */
+  --ease-flow: cubic-bezier(0.33, 0, 0.2, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-silk: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@theme inline {
+  --color-bg: var(--fl-bg);
+  --color-surface: var(--fl-surface);
+  --color-surface-2: var(--fl-surface-2);
+  --color-edge: var(--fl-edge);
+  --color-edge-strong: var(--fl-edge-strong);
+  --color-accent: var(--fl-accent);
+  --color-accent-bright: var(--fl-accent-bright);
+  --color-accent-soft: var(--fl-accent-soft);
+  --color-ink: var(--fl-ink);
+  --color-dim: var(--fl-dim);
+  --color-faint: var(--fl-faint);
+  --color-ok: var(--fl-ok);
+  --color-warn: var(--fl-warn);
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jbmono), ui-monospace, "SF Mono", monospace;
+
+  --ease-flow: var(--ease-flow);
+  --ease-smooth: var(--ease-smooth);
+  --ease-silk: var(--ease-silk);
+  --ease-out-expo: var(--ease-out-expo);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+html {
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--fl-bg);
+  color: var(--fl-ink);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tipografia como hierarquia: headings sempre na grotesca (seção 3) */
+h1,
+h2,
+h3 {
+  font-family: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+::selection {
+  background: var(--fl-accent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--fl-accent-bright);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--fl-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--fl-edge-strong);
+  border-radius: 5px;
+  border: 2px solid var(--fl-bg);
+}
+
+kbd {
+  font-family: var(--font-jbmono), monospace;
+  font-size: 0.75em;
+  border: 1px solid var(--fl-edge-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  color: var(--fl-dim);
+}
+
+/* Grain de filme: textura sobre o dark inteiro, sem custo de layout */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   Motivo visual: "layers" — campo em perspectiva atrás do hero
+   ============================================================ */
+
+.layer-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 47px,
+      color-mix(in srgb, var(--fl-edge-strong) 72%, transparent) 47px,
+      color-mix(in srgb, var(--fl-edge-strong) 72%, transparent) 48px
+    ),
+    repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 47px,
+      color-mix(in srgb, var(--fl-edge) 62%, transparent) 47px,
+      color-mix(in srgb, var(--fl-edge) 62%, transparent) 48px
+    );
+  mask-image: radial-gradient(
+    ellipse 90% 75% at 65% 20%,
+    black 0%,
+    rgba(0, 0, 0, 0.35) 55%,
+    transparent 82%
+  );
+  animation: field-drift 24s var(--ease-smooth) infinite alternate;
+}
+
+.layer-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 42% 34% at 68% 26%,
+    var(--fl-accent-soft) 0%,
+    transparent 70%
+  );
+  animation: aurora 12s var(--ease-smooth) infinite alternate;
+}
+
+@keyframes field-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-24px, -16px, 0); }
+}
+
+@keyframes aurora {
+  from { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 1; transform: translate3d(3%, 2%, 0) scale(1.12); }
+}
+
+/* ============================================================
+   MOVIMENTO — só transform/opacity (compositor thread).
+   O site anima por padrão para todos; `.motion-off` no <html>
+   é o controle explícito do usuário (toggle na UI).
+   ============================================================ */
+
+@keyframes fl-rise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes fl-blur-in {
+  from { opacity: 0; filter: blur(10px); transform: translate3d(0, 22px, 0); }
+  to { opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0); }
+}
+
+/* Entrada coreografada em cascata */
+.rise-group > * {
+  animation: fl-blur-in 0.9s var(--ease-out-expo) both;
+}
+.rise-group > *:nth-child(1) { animation-delay: 0.05s; }
+.rise-group > *:nth-child(2) { animation-delay: 0.14s; }
+.rise-group > *:nth-child(3) { animation-delay: 0.23s; }
+.rise-group > *:nth-child(4) { animation-delay: 0.32s; }
+.rise-group > *:nth-child(5) { animation-delay: 0.41s; }
+
+/* Reveals de scroll: CSS nativo, zero JS (design system 5.3) */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: fl-rise 1ms linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 42%;
+  }
+  /* Itens de lista revelam em cascata conforme entram */
+  .reveal-stagger > * {
+    animation: fl-rise 1ms linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 38%;
+  }
+  /* Tipografia cinética: a headline recua em Z conforme o scroll */
+  .kinetic-scroll {
+    animation: kinetic 1ms linear both;
+    animation-timeline: scroll();
+    animation-range: 0 82vh;
+  }
+  /* Barra de progresso de leitura */
+  .scroll-progress {
+    animation: progress-grow 1ms linear both;
+    animation-timeline: scroll();
+  }
+}
+
+@keyframes kinetic {
+  to { transform: translate3d(0, 9vh, 0) scale(0.94); opacity: 0.28; }
+}
+
+@keyframes progress-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Fallback sem animation-timeline: conteúdo visível, sem reveal */
+@supports not (animation-timeline: view()) {
+  .reveal,
+  .reveal-stagger > * { opacity: 1; }
+}
+
+/* Transição de página */
+@keyframes page-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.page-enter {
+  animation: page-in 0.55s var(--ease-out-expo) both;
+}
+
+/* View Transitions API (design system 5.1) */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: vt-out 0.32s var(--ease-flow) both;
+}
+::view-transition-new(root) {
+  animation: vt-in 0.42s var(--ease-out-expo) both;
+}
+@keyframes vt-out {
+  to { opacity: 0; transform: translate3d(0, -10px, 0) scale(0.995); }
+}
+@keyframes vt-in {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+}
+
+/* ============================================================
+   EFEITOS DE SUPERFÍCIE
+   ============================================================ */
+
+/* Spotlight que segue o cursor (coords vindas do JS) */
+.spot-card {
+  position: relative;
+  isolation: isolate;
+}
+.spot-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-flow);
+  background: radial-gradient(
+    340px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--fl-accent) 16%, transparent),
+    transparent 72%
+  );
+}
+.spot-card:hover::before { opacity: 1; }
+
+/* Hover com profundidade real + halo do acento */
+.glow-hover {
+  transition: transform 0.4s var(--ease-out-expo), border-color 0.3s var(--ease-flow),
+    box-shadow 0.4s var(--ease-flow);
+}
+.glow-hover:hover {
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(77, 132, 255, 0.14),
+    0 0 34px -8px rgba(0, 82, 255, 0.32);
+}
+
+/* Tilt 3D (coords do JS) — profundidade verdadeira, não sombra falsa */
+.tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.45s var(--ease-out-expo);
+}
+.tilt:hover {
+  transform: perspective(900px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg))
+    translate3d(0, -4px, 0);
+}
+
+/* Botão magnético (deslocamento vindo do JS) */
+.magnetic {
+  transition: transform 0.35s var(--ease-out-expo), background-color 0.25s var(--ease-flow),
+    box-shadow 0.35s var(--ease-flow);
+  transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0);
+}
+
+/* Numeral-fantasma: escala tipográfica como textura */
+.ghost-numeral {
+  position: absolute;
+  right: 0.5rem;
+  bottom: -0.5rem;
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 7rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--fl-ink);
+  opacity: 0.028;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.4s var(--ease-flow), transform 0.5s var(--ease-out-expo);
+}
+.group:hover .ghost-numeral,
+.spot-card:hover .ghost-numeral {
+  opacity: 0.055;
+  transform: translate3d(0, -6px, 0);
+}
+
+/* Texto vazado — contraste tipográfico sem segunda cor */
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--fl-dim);
+}
+
+/* Marquee tipográfico */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 42s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Underline dos links de navegação */
+.nav-link { position: relative; }
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: var(--fl-accent-bright);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease-flow);
+}
+.nav-link:hover::after,
+.nav-link[data-active="true"]::after { transform: scaleX(1); }
+
+/* Cursor customizado (posição do JS) */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  pointer-events: none;
+  border-radius: 9999px;
+  will-change: transform;
+}
+.cursor-dot {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  background: var(--fl-accent-bright);
+}
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1px solid color-mix(in srgb, var(--fl-accent-bright) 55%, transparent);
+  transition: width 0.28s var(--ease-out-expo), height 0.28s var(--ease-out-expo),
+    margin 0.28s var(--ease-out-expo), border-color 0.28s var(--ease-flow),
+    background-color 0.28s var(--ease-flow);
+}
+.cursor-ring[data-hot="true"] {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-color: var(--fl-accent-bright);
+  background: color-mix(in srgb, var(--fl-accent) 10%, transparent);
+}
+/* Só em ponteiro fino: touch não tem cursor */
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot, .cursor-ring { display: none; }
+}
+
+/* ============================================================
+   Controle de movimento do usuário (toggle explícito na UI).
+   Não usamos a media query do SO como interruptor geral: ela
+   deixa o site inteiro parado para muita gente que só desligou
+   efeitos do Windows. Aqui a decisão é consciente.
+   ============================================================ */
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+html.motion-off .cursor-dot,
+html.motion-off .cursor-ring { display: none; }
