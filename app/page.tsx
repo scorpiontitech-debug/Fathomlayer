@@ -110,8 +110,15 @@ export default async function HomePage() {
         {/* Régua de dados: números reais do banco, no rodapé do hero */}
         <dl className="relative z-10 mt-16 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-lg border border-edge bg-edge">
           {[
-            { k: "Items indexed", v: indexedItems.toString() },
-            { k: "Reference entries", v: referenceEntries.toString() },
+            // "Items indexed: 0" anunciava o vazio antes de o site se
+            // apresentar. Enquanto não houver acervo, a régua mostra o que
+            // de fato existe — nada aqui é número inventado.
+            indexedItems > 0
+              ? { k: "Items indexed", v: indexedItems.toString() }
+              : { k: "Reference entries", v: referenceEntries.toString() },
+            indexedItems > 0
+              ? { k: "Reference entries", v: referenceEntries.toString() }
+              : { k: "Primary-source specs", v: "100%" },
             { k: "Paid placements", v: "0" },
           ].map((stat) => (
             <div key={stat.k} className="bg-bg/80 px-5 py-4 backdrop-blur-sm">

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoriesByPillar } from "@/lib/queries";
-import { PILLARS, PILLAR_KEYS, pillarBySlug } from "@/lib/taxonomy";
+import { getCategoriesByPillar, getEditorialPages } from "@/lib/queries";
+import { PILLARS, PILLAR_KEYS, matchesPillar, pillarBySlug } from "@/lib/taxonomy";
 
 export const revalidate = 3600;
 // dynamicParams true: `false` quebra o prefetch RSC (NoFallbackError) sob ISR.
@@ -37,7 +37,16 @@ export default async function PillarPage({
   const pillar = pillarBySlug(pillarSlug);
   if (!pillar) notFound();
 
-  const categories = await getCategoriesByPillar(pillar.key);
+  const [categories, glossary, guides] = await Promise.all([
+    getCategoriesByPillar(pillar.key),
+    getEditorialPages("glossary"),
+    getEditorialPages("guide"),
+  ]);
+
+  // Conteúdo editorial já publicado que pertence a este pilar. É o que
+  // impede a página de ser um beco sem saída enquanto nenhuma categoria
+  // cruzou o Quality Gate — sem burlar o gate, só usando o que já é público.
+  const reading = [...guides, ...glossary].filter((p) => matchesPillar(p.tags, pillar.key));
 
   return (
     <div className="space-y-10">
@@ -85,14 +94,72 @@ export default async function PillarPage({
           ))}
         </ul>
       ) : (
-        <div className="rounded-lg border border-edge bg-surface px-6 py-14 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">In curation</p>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-dim">
-            Categories in this pillar are being reviewed. A category only enters the public
-            index with at least 3 published, evaluated items.
+        /* Sem categoria indexável ainda. Em vez de uma caixa vazia, a página
+           declara o critério e segue com o que já existe publicado. */
+        <div className="max-w-2xl border-l-2 border-accent pl-5">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+            Categories in review
+          </p>
+          <p className="mt-2 leading-relaxed text-dim">
+            A category appears here only after three items have been evaluated and
+            published — score, editorial note and verified specifications. Until then the
+            reference material below is the useful part of this pillar, and it is already
+            written.
           </p>
         </div>
       )}
+
+      {reading.length > 0 ? (
+        <section className="reveal space-y-4 pt-4">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-display text-xl font-semibold tracking-tight">Start here</h2>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint">
+              Reference
+            </span>
+          </div>
+          <ul className="divide-y divide-edge border-y border-edge">
+            {reading.map((page) => (
+              <li key={page.id}>
+                <Link
+                  href={`/${page.content_type === "guide" ? "guides" : "glossary"}/${page.slug}`}
+                  className="group flex items-center justify-between gap-4 py-4"
+                >
+                  <span className="leading-snug text-dim transition-colors group-hover:text-ink">
+                    {page.title}
+                  </span>
+                  <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.14em] text-faint">
+                    {page.content_type === "guide" ? "Guide" : "Glossary"}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {pillar.key === "compute" ? (
+        <Link
+          href="/calculator"
+          data-spot
+          className="spot-card group flex items-center justify-between gap-4 rounded-lg border border-edge bg-surface p-6 transition-[border-color,transform] duration-300 ease-flow hover:-translate-y-0.5 hover:border-edge-strong"
+        >
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+              Interactive tool
+            </p>
+            <p className="mt-1 font-display text-lg font-semibold">Local AI Hardware Calculator</p>
+            <p className="mt-1 text-sm leading-relaxed text-dim">
+              Pick a model, see the memory tier it needs.
+            </p>
+          </div>
+          <span
+            aria-hidden
+            className="text-accent-bright transition-transform duration-200 ease-flow group-hover:translate-x-1"
+          >
+            →
+          </span>
+        </Link>
+      ) : null}
     </div>
   );
 }
