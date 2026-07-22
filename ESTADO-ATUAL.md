@@ -1,6 +1,6 @@
 # Fathom Layer — Estado do Projeto
 
-> **Handoff de sessão.** Atualizado em **2026-07-21**.
+> **Handoff de sessão.** Atualizado em **2026-07-22**.
 > Leia isto primeiro, depois `fathom-layer-readme.md` e os documentos em `docs/`.
 
 ---
@@ -9,6 +9,21 @@
 
 **Todo o código da Camada 1 está pronto e verificado.** O que trava o lançamento não é
 código — é configuração de ambiente (2 itens, ~10 min) e curadoria de conteúdo.
+
+### O projeto agora é um repositório git
+
+`git init` feito em 2026-07-22, branch `main`, identidade configurada **local ao repo**
+(não havia global). `.env.local` fora do versionamento pelo `.gitignore` existente.
+Antes de qualquer alteração, `git log` mostra o histórico real — use-o em vez de deduzir
+o que mudou.
+
+### Pendência de banco aberta
+
+**`supabase/migrations/0005_archived_visibility.sql` está escrita mas NÃO aplicada.**
+Ela é o que faz a regra de arquivamento (#21) funcionar de verdade — sem ela, arquivar
+um item faz a página virar 404 em vez de permanecer live. Aplicar junto com a próxima
+sessão de banco. Não há urgência enquanto houver 0 produtos publicados: não há o que
+arquivar.
 
 ---
 
@@ -80,6 +95,8 @@ Projeto Supabase: **`etpqfcbwyosplyaiqxhm`** · `https://etpqfcbwyosplyaiqxhm.su
 2. `0002_mvp_gaps.sql` — staging, `pending_review`, `link_clicks`, `launch_phase`
 3. `0003_security_hardening.sql` — `search_path` nas funções, `pg_trgm` → schema `extensions`
 4. `0004_camada1_deltas.sql` — `pros`/`cons`/`ideal_for`, `price_from`, `release_year`, `content_language`, `last_verified_at`, tabela `editorial_pages`
+5. `0005_archived_visibility.sql` — **ESCRITA, NÃO APLICADA.** RLS de `products`/`software`
+   passa a expor `archived` além de `published` (roadmap #21)
 
 Advisors de segurança: **limpos** (os 2 avisos restantes são intencionais — `ingestion_staging`
 e `link_clicks` são internas, sem policy pública por design).
@@ -98,7 +115,7 @@ e `link_clicks` são internas, sem policy pública por design).
 | `/glossary` · `/guides` · `/radar` (+ `[slug]`) | editorial |
 | `/setups` (+ `[slug]`) | curadoria manual |
 | `/out/{link_id}` | 302 + grava clique, `noindex` |
-| `/methodology` `/about` `/privacy` `/affiliate-disclosure` | confiança + legal |
+| `/methodology` `/about` `/privacy` `/affiliate-disclosure` `/contact` | confiança + legal |
 | `/sitemap/{core,categories,products,software,editorial}.xml` · `/robots.txt` · `/llms.txt` | SEO |
 | `opengraph-image` (raiz e por item) | cartão de spec via `next/og` |
 
@@ -111,6 +128,17 @@ e `link_clicks` são internas, sem policy pública por design).
 - **Gate #11**: mínimo de 5 campos estruturados combinados
 - **Banned-Phrase Blocklist**: `lib/banned-phrases.ts`, aplicada na publicação e na síntese
 - **Aterramento numérico**: o pipeline rejeita texto da IA com número ausente do `raw_payload`
+- **Arquivamento (#21)**: item `archived` mantém a página live (200) — nunca 410/301
+  automático — com badge âmbar, sem link de afiliado e sem site oficial. Some da contagem
+  de `active_listing_count`, nunca é sugerido como alternativa, e vai para o fim da
+  listagem da categoria (continua listado de propósito: página sem link de entrada vira
+  órfã). Remoção só manual, em caso de pedido legal via `/contact`.
+
+> **Interação a não esquecer:** se arquivar um item derrubar a categoria abaixo de 3
+> publicados, a categoria perde `is_indexable` e **todas** as páginas dela passam a 404,
+> inclusive as arquivadas — a página de detalhe resolve a categoria antes do item. Isso é
+> o Quality Gate funcionando, não regressão. No caso normal (um item de vários sai de
+> linha) a página sobrevive.
 
 ### Design (nível Awwwards)
 Dark mode estrito, acento único `#0052FF`, Space Grotesk / Instrument Sans / JetBrains Mono.
@@ -142,6 +170,12 @@ reveals scroll-driven em CSS nativo.
    não reintroduzir.
 6. **Conector MCP do Supabase é org-scoped** — aponta para a conta do Fathom Layer.
    Trabalhar no banco da Infinity exige reautorizar (inversão rara).
+7. **A porta 3000 é do site da Infinity Soluções**, que costuma estar rodando na máquina.
+   Não matar aquele processo. O `.claude/launch.json` tem a config `fathom-layer-dev` com
+   `autoPort`, que sobe o Fathom em porta livre.
+8. **PowerShell quebra `git commit -m` com aspas na mensagem** — o here-string `@'...'@`
+   não protege: o git recebe os argumentos partidos. Escrever a mensagem em arquivo e
+   usar `git commit -F arquivo.txt`.
 
 ---
 
@@ -153,10 +187,36 @@ reveals scroll-driven em CSS nativo.
 3. Completar o cluster até 15–20 itens
 4. Deploy na Vercel
 
+**Precisa de validação com dado real (não deu para exercitar com o banco vazio):**
+Com 0 produtos publicados, nenhuma página de item renderiza. Dois caminhos passaram só
+por build e type-check, nunca por dado real — conferir assim que o primeiro produto for
+publicado: (a) o bloco **Further reading** na página de item, que casa glossário/guias
+por categoria e tags; (b) toda a renderização de item **arquivado** (badge, nota, ausência
+de link de afiliado), que além disso depende da migration `0005` ser aplicada.
+
+**Sem UI de arquivamento.** O `/admin/review` é fila de `pending_review`, não gerenciador
+de publicados. Arquivar hoje é `update` manual no Supabase. Se isso virar rotina, vale uma
+tela de itens publicados — não antes.
+
 **Conteúdo que posso continuar produzindo (não depende de você):**
 - Mais glossário/guias em outras categorias (cauda longa, seção 9 do content-spec)
 - **Radar de lançamentos:** precisa de fontes atuais e verificáveis — indique as fontes,
   porque rumor sem procedência é proibido pelo próprio content-spec
+
+**Itens #17–#22 do roadmap (adicionados em 2026-07-22) — estado:**
+
+| Item | Estado |
+|---|---|
+| #17 distribuição (Reddit/YouTube) | trabalho do operador, sem código |
+| #18 rastreamento de citação por IA | Camada 2, nada a fazer agora |
+| #19 analytics + cadência | **adiado por decisão do operador** — com 0 páginas indexáveis não há o que medir; o Vercel Analytics do Hobby já dá o sinal de pico que o #22 precisa |
+| #20 canal de contato | **feito** — `/contact`, e-mail direto, sem sistema de ticket |
+| #21 regra de arquivamento | código feito; **falta aplicar a migration 0005** |
+| #22 runbook de pico | trabalho do operador; a mitigação por ISR que ele descreve já é verdade na arquitetura |
+
+> **Ao ativar analytics um dia:** `/privacy` afirma hoje que o site "runs no analytics
+> scripts in your browser". É verdade agora. No dia que entrar Plausible, esse texto muda
+> junto — senão a política de privacidade passa a mentir.
 
 **Camada 2** (ordem definida no roadmap, dentro da janela de lançamento):
 2 agentes internos (Triagem de Quality Gate + Vigia de Indexação) → painel cresce junto →
