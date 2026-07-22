@@ -5,6 +5,17 @@ import type { Product, Software } from "@/lib/queries";
 // Product Card (design system seção 7): título, design_score, 1 spec de
 // destaque; o hover revela a 2ª spec — profundidade real, não troca de cor.
 
+// Marcador de item descontinuado na listagem (roadmap #21). Deliberadamente
+// discreto: informa sem transformar o card em alerta.
+function DiscontinuedTag() {
+  return (
+    <span className="mt-1.5 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-warn">
+      <span aria-hidden className="h-1 w-1 rounded-full bg-warn" />
+      Discontinued
+    </span>
+  );
+}
+
 export function ProductCard({ product, href }: { product: Product; href: string }) {
   const { primary, secondary } = cardSpecs(product.specs);
   const tier = tierLabel(product.specs);
@@ -20,6 +31,7 @@ export function ProductCard({ product, href }: { product: Product; href: string 
         <div>
           <h3 className="font-display font-semibold leading-snug">{product.title}</h3>
           {product.brand ? <p className="mt-0.5 text-sm text-dim">{product.brand}</p> : null}
+          {product.status === "archived" ? <DiscontinuedTag /> : null}
         </div>
         {product.design_score !== null ? (
           <div className="shrink-0 text-right leading-none">
@@ -74,6 +86,7 @@ export function SoftwareCard({ software, href }: { software: Software; href: str
     >
       <div>
         <h3 className="font-display font-semibold leading-snug">{software.name}</h3>
+        {software.status === "archived" ? <DiscontinuedTag /> : null}
         {software.description ? (
           <p className="mt-1 line-clamp-2 text-sm text-dim">{software.description}</p>
         ) : null}

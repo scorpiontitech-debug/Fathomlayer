@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 import { JsonLd } from "@/components/JsonLd";
 import { ProsCons } from "@/components/ProsCons";
+import { DiscontinuedBadge, DiscontinuedNotice } from "@/components/StatusBadge";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import {
   getAlternativeProducts,
@@ -13,8 +14,10 @@ import {
   getLinks,
   getProductById,
   getProductBySlug,
+  getRelatedEditorialPages,
   getSoftwareBySlug,
   type Category,
+  type EditorialPage,
   type LinkRow,
   type Product,
   type Software,
@@ -233,6 +236,35 @@ function AlternativesBlock({
   );
 }
 
+// Leitura relacionada (content-spec §8). Glossário e guias são a cauda longa
+// do índice — sem link de entrada a partir das páginas de item, ficam órfãos
+// e a autoridade não circula.
+function FurtherReading({ pages }: { pages: EditorialPage[] }) {
+  if (pages.length === 0) return null;
+  return (
+    <section className="reveal max-w-2xl space-y-3">
+      <h2 className="font-display text-xl font-semibold tracking-tight">Further reading</h2>
+      <ul className="divide-y divide-edge border-y border-edge">
+        {pages.map((page) => (
+          <li key={page.id}>
+            <Link
+              href={`/${page.content_type === "guide" ? "guides" : "glossary"}/${page.slug}`}
+              className="group flex items-center justify-between gap-4 py-3.5"
+            >
+              <span className="text-sm leading-snug text-dim transition-colors group-hover:text-ink">
+                {page.title}
+              </span>
+              <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.14em] text-faint">
+                {page.content_type === "guide" ? "Guide" : "Glossary"}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 const formatPrice = (value: number, currency: string | null) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -272,10 +304,11 @@ export default async function DetailPage({
   if (entity.kind === "product") {
     const p = entity.product;
     const tier = tierLabel(p.specs);
-    const [links, relatedProduct, alternatives] = await Promise.all([
+    const [links, relatedProduct, alternatives, furtherReading] = await Promise.all([
       getLinks("product", p.id),
       p.related_context_product_id ? getProductById(p.related_context_product_id) : null,
       getAlternativeProducts(p),
+      getRelatedEditorialPages(p.category_id, p.tags),
     ]);
     let relatedCategory: Category | null = null;
     if (relatedProduct) {
@@ -315,8 +348,9 @@ export default async function DetailPage({
                 </>
               ) : null}
             </div>
-            <div className="mt-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <VerifiedBadge verifiedAt={p.last_verified_at} />
+              {p.status === "archived" ? <DiscontinuedBadge /> : null}
             </div>
           </div>
           {p.design_score !== null ? <DesignScore score={p.design_score} /> : null}
@@ -345,7 +379,11 @@ export default async function DetailPage({
           </section>
         ) : null}
 
-        <OutLinks links={links} />
+        {p.status === "archived" ? (
+          <DiscontinuedNotice kind="product" />
+        ) : (
+          <OutLinks links={links} />
+        )}
 
         <AlternativesBlock
           items={alternatives.map((alt) => ({
@@ -357,6 +395,8 @@ export default async function DetailPage({
           pillarSlug={pillar.slug}
           categorySlug={category.slug}
         />
+
+        <FurtherReading pages={furtherReading} />
 
         {relatedProduct && relatedCategory && relatedPillar ? (
           <section className="reveal max-w-2xl">
@@ -384,9 +424,10 @@ export default async function DetailPage({
   }
 
   const s = entity.software;
-  const [links, alternatives] = await Promise.all([
+  const [links, alternatives, furtherReading] = await Promise.all([
     getLinks("software", s.id),
     getAlternativeSoftware(s),
+    getRelatedEditorialPages(s.category_id, s.tags),
   ]);
 
   return (
@@ -409,8 +450,9 @@ export default async function DetailPage({
           {s.pricing_model && s.price_text ? <span className="text-faint">·</span> : null}
           {s.price_text ? <span className="font-mono tabular-nums">{s.price_text}</span> : null}
         </div>
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <VerifiedBadge verifiedAt={s.last_verified_at} />
+          {s.status === "archived" ? <DiscontinuedBadge /> : null}
         </div>
       </header>
 
@@ -432,20 +474,28 @@ export default async function DetailPage({
         </section>
       ) : null}
 
-      {s.website_url ? (
-        <p className="reveal">
-          <a
-            href={s.website_url}
-            rel="nofollow noopener"
-            target="_blank"
-            className="nav-link text-sm text-accent-bright"
-          >
-            Official website ↗
-          </a>
-        </p>
-      ) : null}
+      {/* Software arquivado: nem site oficial nem caminho de compra — o
+          destino provavelmente já não existe (roadmap #21). */}
+      {s.status === "archived" ? (
+        <DiscontinuedNotice kind="software" />
+      ) : (
+        <>
+          {s.website_url ? (
+            <p className="reveal">
+              <a
+                href={s.website_url}
+                rel="nofollow noopener"
+                target="_blank"
+                className="nav-link text-sm text-accent-bright"
+              >
+                Official website ↗
+              </a>
+            </p>
+          ) : null}
 
-      <OutLinks links={links} />
+          <OutLinks links={links} />
+        </>
+      )}
 
       <AlternativesBlock
         items={alternatives.map((alt) => ({
@@ -457,6 +507,8 @@ export default async function DetailPage({
         pillarSlug={pillar.slug}
         categorySlug={category.slug}
       />
+
+      <FurtherReading pages={furtherReading} />
     </article>
   );
 }
