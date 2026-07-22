@@ -8,14 +8,21 @@ export function SiteFooter() {
     <footer className="border-t border-edge">
       <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 text-sm sm:grid-cols-[1fr_auto]">
         <div className="max-w-md space-y-3">
-          {/* Lockup oficial completo — o rodapé tem espaço para a marca inteira */}
-          <Image
-            src="/fathom-layer-lockup.png"
-            alt="Fathom Layer"
-            width={1200}
-            height={366}
-            className="h-9 w-auto"
-          />
+          {/* Símbolo + wordmark em HTML, igual ao cabeçalho. O lockup PNG
+              completo (1200x366) era reduzido a 36px de altura — 10x menos —
+              e o texto dentro da imagem virava borrão ilegível. */}
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/fathom-layer-symbol.png"
+              alt=""
+              width={473}
+              height={497}
+              className="h-8 w-auto shrink-0"
+            />
+            <span className="font-display text-[15px] font-semibold tracking-tight text-ink">
+              Fathom Layer
+            </span>
+          </div>
           <p className="text-dim leading-relaxed">
             Fathom Layer may earn a commission on purchases made through links on this site.
             This never affects how an item is scored or ranked.
