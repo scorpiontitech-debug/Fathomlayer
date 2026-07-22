@@ -66,7 +66,10 @@ export default async function HomePage() {
         <div className="layer-field" aria-hidden />
         <HeroCanvas />
 
-        <div className="rise-group kinetic-scroll relative max-w-4xl">
+        {/* z-10 explícito: sem ele o canvas pintava por cima da headline e o
+            texto ficava ilegível atrás das partículas. Ordem no HTML não
+            bastou — a camada precisa ser declarada. */}
+        <div className="rise-group kinetic-scroll relative z-10 max-w-4xl">
           <p className="font-mono text-xs uppercase tracking-[0.24em] text-dim">
             Independent technology index
           </p>
@@ -105,7 +108,7 @@ export default async function HomePage() {
         </div>
 
         {/* Régua de dados: números reais do banco, no rodapé do hero */}
-        <dl className="relative mt-16 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-lg border border-edge bg-edge">
+        <dl className="relative z-10 mt-16 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-lg border border-edge bg-edge">
           {[
             { k: "Items indexed", v: indexedItems.toString() },
             { k: "Reference entries", v: referenceEntries.toString() },
