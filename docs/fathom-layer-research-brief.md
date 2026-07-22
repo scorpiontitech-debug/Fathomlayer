@@ -74,8 +74,9 @@ least 3 within one category**, never scattered one per category.
 Recommend **2 or 3 categories** (from the 16 above) for the launch cluster.
 Do not cover all sixteen. For each recommended category, justify with:
 
-- Estimated monthly search demand for the category's long-tail question
-  space (not just head terms), with the tool or dataset the figure comes from
+- Estimated monthly search demand, given **both** as the head-term volume
+  and as the long-tail question-space volume, with the tool or dataset each
+  figure comes from
 - Competitive density: who currently ranks, how entrenched, and whether the
   top results are genuinely thorough or thin affiliate content
 - Affiliate monetisation depth: do real programs exist, at what commission
@@ -108,6 +109,28 @@ for each factor**, not just the final ordering:
 (specialist hardware retail), Amazon Associates (general coverage only).
 Flag anything that is **CJ Affiliate exclusive** — that network is being
 avoided in the early phase.
+
+### Present the shortlist twice
+
+Give me **two separate tables**, over the same candidate set:
+
+**Table A — ranked by raw search demand.** Highest monthly volume first,
+composite score ignored. Include the volume figure, the tool it came from,
+and the current top-ranking site for that term. This table answers "what
+is most searched", plainly, with nothing filtered out.
+
+**Table B — ranked by the four-factor composite.** The acquisition order I
+would actually publish in.
+
+Then, in no more than 150 words, explain where the two tables disagree and
+why. If a high-volume product is ranked low in Table B, say exactly what
+would have to be true for it to be worth pursuing anyway — for example an
+affiliate commission large enough to justify competing, or an incumbent
+weak enough to displace. I want to see the trade-off, not have it decided
+for me.
+
+Do not omit a high-volume product from Table A because you judge it
+unwinnable. Rank it low in Table B and explain why there.
 
 ## Part 3 — The query map
 
@@ -144,7 +167,8 @@ Deliver in this order:
 1. **Executive summary** — under 200 words. Which categories, which
    products, expected time to first ranking, biggest risk.
 2. **Part 1** — category recommendation with the scoring table
-3. **Part 2** — ranked product shortlist with the four-factor scores
+3. **Part 2** — Table A (raw search demand), Table B (four-factor
+   composite), and the reconciliation between them
 4. **Part 3** — query map, grouped by category
 5. **Part 4** — competitive gap
 6. **Part 5** — risks
