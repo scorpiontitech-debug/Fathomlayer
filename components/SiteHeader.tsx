@@ -13,11 +13,15 @@ const NAV = [
   })),
   { href: "/calculator", label: "Calculator" },
   { href: "/glossary", label: "Glossary" },
-  { href: "/setups", label: "Setups" },
 ];
 
-export function SiteHeader() {
+// `showSetups` vem do layout: Setups só entra no menu quando existe pelo
+// menos um setup publicado. Um setup é montado a partir de itens já no
+// índice, então antes do primeiro produto essa página não tem como ter
+// conteúdo — e menu que leva a página vazia queima confiança.
+export function SiteHeader({ showSetups = false }: { showSetups?: boolean }) {
   const pathname = usePathname();
+  const nav = showSetups ? [...NAV, { href: "/setups", label: "Setups" }] : NAV;
 
   return (
     <header className="sticky top-0 z-40 border-b border-edge bg-[color-mix(in_srgb,var(--fl-bg)_86%,transparent)] backdrop-blur-md">
@@ -41,7 +45,7 @@ export function SiteHeader() {
           aria-label="Primary"
           className="flex min-w-0 items-center gap-5 overflow-x-auto whitespace-nowrap text-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link

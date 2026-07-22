@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { HeroCanvas } from "@/components/three/HeroCanvas";
-import { getEditorialPages, getIndexableCategories } from "@/lib/queries";
+import { getEditorialPages, getIndexableCategories, getPublishedSetups } from "@/lib/queries";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import { PILLARS, PILLAR_KEYS } from "@/lib/taxonomy";
 
@@ -45,11 +45,12 @@ const MARQUEE = [
 ];
 
 export default async function HomePage() {
-  const [categories, glossary, guides, launches] = await Promise.all([
+  const [categories, glossary, guides, launches, setups] = await Promise.all([
     getIndexableCategories(),
     getEditorialPages("glossary"),
     getEditorialPages("guide"),
     getEditorialPages("launch"),
+    getPublishedSetups(),
   ]);
   const indexedItems = categories.reduce((n, c) => n + c.active_listing_count, 0);
   const referenceEntries = glossary.length + guides.length + launches.length;
@@ -226,9 +227,11 @@ export default async function HomePage() {
             );
           })}
 
-          {/* Setups */}
+          {/* Setups quando houver; até lá, os guias — que já têm páginas
+              publicadas e não apareciam no bento. Card nenhum deve levar a
+              uma seção vazia. */}
           <Link
-            href="/setups"
+            href={setups.length > 0 ? "/setups" : "/guides"}
             data-spot
             data-tilt
             className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge bg-surface p-6 hover:border-edge-strong lg:col-span-2"
@@ -236,15 +239,18 @@ export default async function HomePage() {
             <span className="ghost-numeral">04</span>
             <div className="relative">
               <span className="font-mono text-xs text-faint">04</span>
-              <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">Setups</h3>
+              <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">
+                {setups.length > 0 ? "Setups" : "Buying guides"}
+              </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-dim">
-                Hand-curated combinations that work together, with the reasoning behind each
-                pick.
+                {setups.length > 0
+                  ? "Hand-curated combinations that work together, with the reasoning behind each pick."
+                  : "Decision frameworks for the questions a spec sheet does not answer — how much hardware you actually need, and when to buy."}
               </p>
             </div>
             <div className="relative mt-6 h-5 overflow-hidden font-mono text-xs uppercase tracking-[0.14em]">
               <span className="absolute inset-x-0 text-faint transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-                Editorial guides
+                {setups.length > 0 ? "Editorial guides" : `${guides.length} guides`}
               </span>
               <span className="absolute inset-x-0 translate-y-5 text-accent-bright transition-transform duration-300 ease-flow group-hover:translate-y-0">
                 Enter →

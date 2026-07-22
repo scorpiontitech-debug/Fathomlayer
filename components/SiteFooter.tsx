@@ -3,7 +3,10 @@ import Link from "next/link";
 
 // Global disclosure required by roadmap item #8 (legal obligation CH/EU/US),
 // plus the credibility pages (#7).
-export function SiteFooter() {
+// `showRadar`: o radar de lançamentos só entra no rodapé quando há página
+// de lançamento publicada. Sem fonte verificável não se publica rumor
+// (content-spec), então a seção fica legitimamente vazia por enquanto.
+export function SiteFooter({ showRadar = false }: { showRadar?: boolean }) {
   return (
     <footer className="border-t border-edge">
       <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 text-sm sm:grid-cols-[1fr_auto]">
@@ -41,9 +44,11 @@ export function SiteFooter() {
           <Link href="/guides" className="text-dim transition-colors hover:text-ink">
             Buying guides
           </Link>
-          <Link href="/radar" className="text-dim transition-colors hover:text-ink">
-            Launch radar
-          </Link>
+          {showRadar ? (
+            <Link href="/radar" className="text-dim transition-colors hover:text-ink">
+              Launch radar
+            </Link>
+          ) : null}
           <Link href="/methodology" className="text-dim transition-colors hover:text-ink">
             Methodology
           </Link>

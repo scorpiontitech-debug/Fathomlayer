@@ -3,6 +3,7 @@ import { Instrument_Sans, JetBrains_Mono, Space_Grotesk } from "next/font/google
 import { MotionLayer } from "@/components/motion/MotionLayer";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getEditorialPages, getPublishedSetups } from "@/lib/queries";
 import "./globals.css";
 
 // Tipografia (design system seção 3): grotesca geométrica para headings,
@@ -39,7 +40,16 @@ export const metadata: Metadata = {
     "An independent technology index: hardware, software and AI evaluated with verified data and in-house editorial criteria.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// Navegação consciente do acervo: seção sem nada publicado não vira item de
+// menu. Uma porta que abre para "nada aqui" custa credibilidade em toda
+// visita — e some sozinha do menu, sem ninguém precisar lembrar de editar
+// esta lista quando o primeiro item entrar.
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [setups, launches] = await Promise.all([
+    getPublishedSetups(),
+    getEditorialPages("launch"),
+  ]);
+
   return (
     <html lang="en" className={`${grotesk.variable} ${body.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col antialiased">
@@ -50,11 +60,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <MotionLayer />
-        <SiteHeader />
+        <SiteHeader showSetups={setups.length > 0} />
         <main id="content" className="mx-auto w-full max-w-6xl flex-1 px-5 pb-24 pt-10">
           {children}
         </main>
-        <SiteFooter />
+        <SiteFooter showRadar={launches.length > 0} />
       </body>
     </html>
   );

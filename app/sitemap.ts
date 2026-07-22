@@ -40,16 +40,26 @@ export default async function sitemap({
   id: string;
 }): Promise<MetadataRoute.Sitemap> {
   if (id === "core") {
-    const setups = await getPublishedSetups();
+    // Índice de seção vazia não entra no sitemap: submeter página sem
+    // conteúdo é pedir para ser avaliado por thin content. Entra sozinha
+    // quando o primeiro item for publicado.
+    const [setups, launches] = await Promise.all([
+      getPublishedSetups(),
+      getEditorialPages("launch"),
+    ]);
     return [
       entry("/", undefined, "daily", 1),
       ...PILLAR_KEYS.map((key) => entry(`/${PILLARS[key].slug}`, undefined, "daily", 0.8)),
       entry("/calculator", undefined, "weekly", 0.8),
-      entry("/setups", undefined, "weekly", 0.6),
-      ...setups.map((s) => entry(`/setups/${s.slug}`, s.updated_at, "weekly", 0.6)),
+      ...(setups.length > 0
+        ? [
+            entry("/setups", undefined, "weekly", 0.6),
+            ...setups.map((s) => entry(`/setups/${s.slug}`, s.updated_at, "weekly", 0.6)),
+          ]
+        : []),
       entry("/glossary", undefined, "weekly", 0.5),
       entry("/guides", undefined, "weekly", 0.5),
-      entry("/radar", undefined, "weekly", 0.5),
+      ...(launches.length > 0 ? [entry("/radar", undefined, "weekly", 0.5)] : []),
       entry("/methodology", undefined, "monthly", 0.5),
       entry("/about", undefined, "monthly", 0.4),
       entry("/affiliate-disclosure", undefined, "yearly", 0.2),
