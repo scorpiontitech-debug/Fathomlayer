@@ -356,6 +356,17 @@ export default async function DetailPage({
           {p.design_score !== null ? <DesignScore score={p.design_score} /> : null}
         </header>
 
+        {p.image_url ? (
+          <figure className="reveal flex justify-center rounded-lg border border-edge bg-surface p-8">
+            <img
+              src={p.image_url}
+              alt={p.title}
+              className="max-h-[400px] w-auto max-w-full object-contain"
+              loading="lazy"
+            />
+          </figure>
+        ) : null}
+
         {/* Bloco de resposta atômica (≤150 palavras) — checklist GEO §8 */}
         {p.description ? (
           <section className="max-w-2xl border-l-2 border-accent pl-5">
@@ -455,6 +466,17 @@ export default async function DetailPage({
           {s.status === "archived" ? <DiscontinuedBadge /> : null}
         </div>
       </header>
+
+      {s.image_url ? (
+        <figure className="reveal flex justify-center rounded-lg border border-edge bg-surface p-8">
+          <img
+            src={s.image_url}
+            alt={s.name}
+            className="max-h-[400px] w-auto max-w-full object-contain"
+            loading="lazy"
+          />
+        </figure>
+      ) : null}
 
       {s.description ? (
         <section className="max-w-2xl border-l-2 border-accent pl-5">

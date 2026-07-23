@@ -43,6 +43,17 @@ export function ProductCard({ product, href }: { product: Product; href: string 
         ) : null}
       </div>
 
+      {product.image_url ? (
+        <div className="mt-4 flex h-32 items-center justify-center p-2">
+          <img
+            src={product.image_url}
+            alt={product.title}
+            className="max-h-full w-auto object-contain mix-blend-screen"
+            loading="lazy"
+          />
+        </div>
+      ) : null}
+
       <div className="mt-6 space-y-2">
         {primary ? (
           <div className="flex items-baseline justify-between gap-3 text-sm">
@@ -91,6 +102,18 @@ export function SoftwareCard({ software, href }: { software: Software; href: str
           <p className="mt-1 line-clamp-2 text-sm text-dim">{software.description}</p>
         ) : null}
       </div>
+
+      {software.image_url ? (
+        <div className="mt-4 flex h-32 items-center justify-center p-2">
+          <img
+            src={software.image_url}
+            alt={software.name}
+            className="max-h-full w-auto object-contain mix-blend-screen"
+            loading="lazy"
+          />
+        </div>
+      ) : null}
+
       <div className="relative mt-6 h-5 overflow-hidden text-sm">
         <div className="absolute inset-x-0 flex items-baseline justify-between gap-3 transition-transform duration-300 ease-flow group-hover:-translate-y-5">
           <span className="font-mono text-xs uppercase tracking-[0.14em] text-faint">

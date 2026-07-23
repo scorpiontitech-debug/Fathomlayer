@@ -250,6 +250,7 @@ export type Database = {
           editorial_notes: string | null
           id: string
           ideal_for: string[]
+          image_url: string | null
           is_indexable: boolean
           last_verified_at: string
           price_currency: string | null
@@ -276,6 +277,7 @@ export type Database = {
           editorial_notes?: string | null
           id?: string
           ideal_for?: string[]
+          image_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           price_currency?: string | null
@@ -302,6 +304,7 @@ export type Database = {
           editorial_notes?: string | null
           id?: string
           ideal_for?: string[]
+          image_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           price_currency?: string | null
@@ -421,6 +424,7 @@ export type Database = {
           editorial_notes: string | null
           id: string
           ideal_for: string[]
+          image_url: string | null
           is_indexable: boolean
           last_verified_at: string
           name: string
@@ -446,6 +450,7 @@ export type Database = {
           editorial_notes?: string | null
           id?: string
           ideal_for?: string[]
+          image_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           name: string
@@ -471,6 +476,7 @@ export type Database = {
           editorial_notes?: string | null
           id?: string
           ideal_for?: string[]
+          image_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           name?: string
