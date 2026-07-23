@@ -15,6 +15,9 @@ const NAV = [
   { href: "/api-calculator", label: "API Economics" },
   { href: "/playbooks", label: "Playbooks" },
   { href: "/compare", label: "Compare" },
+  { href: "/copilot", label: "AI Copilot" },
+  { href: "/submit", label: "Submit" },
+  { href: "/trending", label: "Trending" },
   { href: "/glossary", label: "Glossary" },
   { href: "/profile", label: "My Stack" },
 ];

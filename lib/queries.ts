@@ -98,6 +98,120 @@ export async function getProductById(id: string): Promise<Product | null> {
   return data;
 }
 
+export async function getAlternativeProducts(
+  categoryId: string,
+  excludeId: string,
+  limit: number = 3
+) {
+  const { data } = await supabasePublic()
+    .from("products")
+    .select("slug, title, design_score, price_text")
+    .eq("category_id", categoryId)
+    .neq("id", excludeId)
+    .order("design_score", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
+export async function getBestOfCategory(categorySlug: string, limit: number = 5) {
+  // First, find the category
+  const { data: category } = await supabasePublic()
+    .from("categories")
+    .select("id, name, slug")
+    .eq("slug", categorySlug)
+    .single();
+
+  if (!category) return null;
+
+  // Fetch top products
+  const { data: products } = await supabasePublic()
+    .from("products")
+    .select("id, title, slug, design_score, image_url, price_text, description, status")
+    .eq("category_id", category.id)
+    .order("design_score", { ascending: false })
+    .limit(limit);
+
+  // Fetch top software
+  const { data: software } = await supabasePublic()
+    .from("software")
+    .select("id, name, slug, design_score, image_url, price_text, description, status")
+    .eq("category_id", category.id)
+    .order("design_score", { ascending: false })
+    .limit(limit);
+
+  // Combine and sort
+  const combined = [
+    ...(products ?? []).map(p => ({ ...p, type: 'product', title: p.title })),
+    ...(software ?? []).map(s => ({ ...s, type: 'software', title: s.name }))
+  ];
+
+  combined.sort((a, b) => (b.design_score ?? 0) - (a.design_score ?? 0));
+
+  return {
+    category,
+    items: combined.slice(0, limit)
+  };
+}
+
+export async function getAggregateRating(entityType: string, entityId: string) {
+  const { data, error } = await supabasePublic()
+    .from("community_reviews")
+    .select("rating")
+    .eq("entity_type", entityType)
+    .eq("entity_id", entityId);
+
+  if (error || !data || data.length === 0) return null;
+
+  const count = data.length;
+  const sum = data.reduce((acc, curr) => acc + curr.rating, 0);
+  return {
+    ratingValue: (sum / count).toFixed(1),
+    reviewCount: count,
+  };
+}
+
+export async function getTrendingItems() {
+  // Simple MVP approach: get the last 20 saves and reviews, and fetch those entities.
+  const { data: saves } = await supabasePublic()
+    .from("user_saves")
+    .select("entity_type, entity_id")
+    .order("created_at", { ascending: false })
+    .limit(10);
+    
+  const { data: reviews } = await supabasePublic()
+    .from("community_reviews")
+    .select("entity_type, entity_id")
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const entityMap = new Map<string, { type: string, score: number }>();
+  
+  (saves ?? []).forEach(s => {
+    const key = `${s.entity_type}:${s.entity_id}`;
+    entityMap.set(key, { type: s.entity_type, score: (entityMap.get(key)?.score ?? 0) + 1 });
+  });
+  
+  (reviews ?? []).forEach(r => {
+    const key = `${r.entity_type}:${r.entity_id}`;
+    entityMap.set(key, { type: r.entity_type, score: (entityMap.get(key)?.score ?? 0) + 2 });
+  });
+
+  const sortedEntities = Array.from(entityMap.entries()).sort((a, b) => b[1].score - a[1].score).slice(0, 10);
+  
+  const results = await Promise.all(sortedEntities.map(async ([key, data]) => {
+    const id = key.split(":")[1];
+    if (data.type === "product") {
+      const p = await getProductById(id);
+      return p ? { ...p, type: "product", title: p.title } : null;
+    } else {
+      const { data: s } = await supabasePublic().from("software").select("*").eq("id", id).single();
+      return s ? { ...s, type: "software", title: s.name } : null;
+    }
+  }));
+
+  return results.filter(Boolean);
+}
+
 export async function getLinks(
   entityType: "product" | "software",
   entityId: string

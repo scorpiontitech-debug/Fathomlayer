@@ -102,6 +102,91 @@ export type Database = {
           }
         ]
       }
+      price_alerts: {
+        Row: {
+          id: string
+          user_id: string | null
+          email: string
+          entity_type: string
+          entity_id: string
+          target_price: number | null
+          created_at: string
+          notified_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          email: string
+          entity_type: string
+          entity_id: string
+          target_price?: number | null
+          created_at?: string
+          notified_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          email?: string
+          entity_type?: string
+          entity_id?: string
+          target_price?: number | null
+          created_at?: string
+          notified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_alerts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      tool_submissions: {
+        Row: {
+          id: string
+          user_id: string | null
+          name: string
+          website_url: string
+          description: string
+          category: string | null
+          payment_status: string
+          review_status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          name: string
+          website_url: string
+          description: string
+          category?: string | null
+          payment_status?: string
+          review_status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          name?: string
+          website_url?: string
+          description?: string
+          category?: string | null
+          payment_status?: string
+          review_status?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_submissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       user_profiles: {
         Row: {
           id: string

@@ -45,7 +45,7 @@ export function breadcrumbLd(items: { name: string; path: string }[]): JsonLdObj
 // Product: design_score vira Review da própria organização (dado
 // proprietário, é isso que justifica indexação). Sem Offers — não
 // armazenamos preço verificado no MVP.
-export function productLd(product: Product, category: Category, path: string): JsonLdObject {
+export function productLd(product: Product, category: Category, path: string, aggregateRating?: { ratingValue: string; reviewCount: number } | null): JsonLdObject {
   const ld: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -56,6 +56,13 @@ export function productLd(product: Product, category: Category, path: string): J
   };
   if (product.brand) {
     ld.brand = { "@type": "Brand", name: product.brand };
+  }
+  if (aggregateRating) {
+    ld.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: aggregateRating.ratingValue,
+      reviewCount: aggregateRating.reviewCount,
+    };
   }
   if (product.design_score !== null) {
     ld.review = {
@@ -73,7 +80,7 @@ export function productLd(product: Product, category: Category, path: string): J
   return ld;
 }
 
-export function softwareLd(software: Software, category: Category, path: string): JsonLdObject {
+export function softwareLd(software: Software, category: Category, path: string, aggregateRating?: { ratingValue: string; reviewCount: number } | null): JsonLdObject {
   const ld: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -82,6 +89,13 @@ export function softwareLd(software: Software, category: Category, path: string)
     description: software.description ?? undefined,
     applicationCategory: category.name,
   };
+  if (aggregateRating) {
+    ld.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: aggregateRating.ratingValue,
+      reviewCount: aggregateRating.reviewCount,
+    };
+  }
   if (software.website_url) ld.sameAs = software.website_url;
   if (software.pricing_model === "free" || software.pricing_model === "open_source") {
     ld.offers = { "@type": "Offer", price: 0, priceCurrency: "USD" };

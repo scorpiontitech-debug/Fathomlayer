@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 import { CommunityReviews } from "@/components/CommunityReviews";
+import { CopyBadge } from "@/components/CopyBadge";
+import { PriceAlertButton } from "@/components/PriceAlertButton";
 import { GithubStats } from "@/components/GithubStats";
 import { JsonLd } from "@/components/JsonLd";
 import { ProsCons } from "@/components/ProsCons";
@@ -11,6 +13,7 @@ import { DiscontinuedBadge, DiscontinuedNotice } from "@/components/StatusBadge"
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { DeepDive, FaqSection, KeyFeatures, VideoEmbed } from "@/components/RichContent";
 import {
+  getAggregateRating,
   getAlternativeProducts,
   getAlternativeSoftware,
   getCategoryBySlug,
@@ -325,9 +328,11 @@ export default async function DetailPage({
     }
     const relatedPillar = relatedCategory ? pillarByKey(relatedCategory.pillar) : null;
 
+    const aggregateRating = await getAggregateRating("product", p.id);
+
     return (
       <article className="space-y-12">
-        <JsonLd data={productLd(p, category, path)} />
+        <JsonLd data={productLd(p, category, path, aggregateRating)} />
         <JsonLd data={breadcrumbLd(crumbs)} />
 
         <Breadcrumb pillar={pillar} category={category} />
@@ -359,7 +364,10 @@ export default async function DetailPage({
           </div>
           <div className="flex flex-col items-end gap-3">
             {p.design_score !== null ? <DesignScore score={p.design_score} /> : null}
-            <SaveButton entityId={p.id} entityType="product" />
+            <div className="flex gap-2">
+              <PriceAlertButton entityId={p.id} entityType="product" />
+              <SaveButton entityId={p.id} entityType="product" />
+            </div>
           </div>
         </header>
 
@@ -458,9 +466,11 @@ export default async function DetailPage({
     getRelatedEditorialPages(s.category_id, s.tags),
   ]);
 
+  const aggregateRating = await getAggregateRating("software", s.id);
+
   return (
     <article className="space-y-12">
-      <JsonLd data={softwareLd(s, category, path)} />
+      <JsonLd data={softwareLd(s, category, path, aggregateRating)} />
       <JsonLd data={breadcrumbLd(crumbs)} />
 
       <Breadcrumb pillar={pillar} category={category} />
@@ -565,6 +575,10 @@ export default async function DetailPage({
       />
 
       <FurtherReading pages={furtherReading} />
+
+      {s.design_score !== null ? (
+        <CopyBadge slug={s.slug} score={s.design_score} />
+      ) : null}
 
       <CommunityReviews entityId={s.id} entityType="software" />
     </article>
