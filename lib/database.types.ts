@@ -251,6 +251,10 @@ export type Database = {
           id: string
           ideal_for: string[]
           image_url: string | null
+          body_markdown: string | null
+          faqs: Json
+          key_features: string[]
+          video_url: string | null
           is_indexable: boolean
           last_verified_at: string
           price_currency: string | null
@@ -278,6 +282,10 @@ export type Database = {
           id?: string
           ideal_for?: string[]
           image_url?: string | null
+          body_markdown?: string | null
+          faqs?: Json
+          key_features?: string[]
+          video_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           price_currency?: string | null
@@ -305,6 +313,10 @@ export type Database = {
           id?: string
           ideal_for?: string[]
           image_url?: string | null
+          body_markdown?: string | null
+          faqs?: Json
+          key_features?: string[]
+          video_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           price_currency?: string | null
@@ -425,6 +437,10 @@ export type Database = {
           id: string
           ideal_for: string[]
           image_url: string | null
+          body_markdown: string | null
+          faqs: Json
+          key_features: string[]
+          video_url: string | null
           is_indexable: boolean
           last_verified_at: string
           name: string
@@ -451,6 +467,10 @@ export type Database = {
           id?: string
           ideal_for?: string[]
           image_url?: string | null
+          body_markdown?: string | null
+          faqs?: Json
+          key_features?: string[]
+          video_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           name: string
@@ -477,6 +497,10 @@ export type Database = {
           id?: string
           ideal_for?: string[]
           image_url?: string | null
+          body_markdown?: string | null
+          faqs?: Json
+          key_features?: string[]
+          video_url?: string | null
           is_indexable?: boolean
           last_verified_at?: string
           name?: string

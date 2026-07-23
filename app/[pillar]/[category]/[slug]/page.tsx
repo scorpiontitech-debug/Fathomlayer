@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ProsCons } from "@/components/ProsCons";
 import { DiscontinuedBadge, DiscontinuedNotice } from "@/components/StatusBadge";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { DeepDive, FaqSection, KeyFeatures, VideoEmbed } from "@/components/RichContent";
 import {
   getAlternativeProducts,
   getAlternativeSoftware,
@@ -377,7 +378,11 @@ export default async function DetailPage({
           </section>
         ) : null}
 
+        {p.video_url ? <VideoEmbed url={p.video_url} /> : null}
+
         <ProsCons pros={p.pros} cons={p.cons} idealFor={p.ideal_for} />
+
+        {p.key_features && p.key_features.length > 0 ? <KeyFeatures features={p.key_features} /> : null}
 
         <SpecsTable specs={p.specs} />
 
@@ -389,6 +394,10 @@ export default async function DetailPage({
             <p className="mt-2 leading-relaxed text-dim">{p.editorial_notes}</p>
           </section>
         ) : null}
+
+        {p.body_markdown ? <DeepDive markdown={p.body_markdown} /> : null}
+        
+        {p.faqs ? <FaqSection faqs={p.faqs} /> : null}
 
         {p.status === "archived" ? (
           <DiscontinuedNotice kind="product" />
@@ -485,7 +494,11 @@ export default async function DetailPage({
         </section>
       ) : null}
 
+      {s.video_url ? <VideoEmbed url={s.video_url} /> : null}
+
       <ProsCons pros={s.pros} cons={s.cons} idealFor={s.ideal_for} />
+
+      {s.key_features && s.key_features.length > 0 ? <KeyFeatures features={s.key_features} /> : null}
 
       {s.editorial_notes ? (
         <section className="reveal max-w-2xl rounded-lg border border-edge bg-surface p-6">
@@ -495,6 +508,10 @@ export default async function DetailPage({
           <p className="mt-2 leading-relaxed text-dim">{s.editorial_notes}</p>
         </section>
       ) : null}
+
+      {s.body_markdown ? <DeepDive markdown={s.body_markdown} /> : null}
+
+      {s.faqs ? <FaqSection faqs={s.faqs} /> : null}
 
       {/* Software arquivado: nem site oficial nem caminho de compra — o
           destino provavelmente já não existe (roadmap #21). */}
