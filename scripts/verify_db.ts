@@ -44,6 +44,22 @@ async function verify() {
     console.log("✅ Table 'community_reviews' exists.");
   }
 
+  // 4. Check if price_alerts exists
+  const { data: alerts, error: err4 } = await supabase.from("price_alerts").select("id").limit(1);
+  if (err4) {
+    console.error("❌ Error checking price_alerts table:", err4.message);
+  } else {
+    console.log("✅ Table 'price_alerts' exists.");
+  }
+
+  // 5. Check if tool_submissions exists
+  const { data: submissions, error: err5 } = await supabase.from("tool_submissions").select("id").limit(1);
+  if (err5) {
+    console.error("❌ Error checking tool_submissions table:", err5.message);
+  } else {
+    console.log("✅ Table 'tool_submissions' exists.");
+  }
+
   console.log("Verification complete.");
 }
 

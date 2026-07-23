@@ -576,9 +576,7 @@ export default async function DetailPage({
 
       <FurtherReading pages={furtherReading} />
 
-      {s.design_score !== null ? (
-        <CopyBadge slug={s.slug} score={s.design_score} />
-      ) : null}
+      {/* Software doesn't have a design_score. Only products do. */}
 
       <CommunityReviews entityId={s.id} entityType="software" />
     </article>

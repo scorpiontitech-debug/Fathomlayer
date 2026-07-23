@@ -35,7 +35,7 @@ async function fetchItem(slug?: string) {
       description: software.description ?? null,
       pros: software.pros || [],
       cons: software.cons || [],
-      specs: (software.specs as Record<string, string>) || {}
+      specs: {}
     };
   }
 

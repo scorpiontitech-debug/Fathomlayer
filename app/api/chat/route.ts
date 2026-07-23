@@ -17,12 +17,12 @@ export async function POST(req: Request) {
     // In a production environment with thousands of items, we would use pgvector and embeddings.
     // For this MVP, we will inject a summary of top software/products.
     const [softwareRes, productRes] = await Promise.all([
-      supabasePublic().from("software").select("name, description, pricing_model, design_score, slug").order("design_score", { ascending: false }).limit(20),
-      supabasePublic().from("product").select("title, description, price_text, design_score, slug").order("design_score", { ascending: false }).limit(20),
+      supabasePublic().from("software").select("name, description, pricing_model, slug").limit(20),
+      supabasePublic().from("products").select("title, description, price_from, design_score, slug").order("design_score", { ascending: false }).limit(20),
     ]);
 
-    const softwareContext = softwareRes.data?.map(s => `- ${s.name} (Score: ${s.design_score}, Price: ${s.pricing_model}): ${s.description}. Link: /software/ai/${s.slug}`).join("\n");
-    const productContext = productRes.data?.map(p => `- ${p.title} (Score: ${p.design_score}, Price: ${p.price_text}): ${p.description}. Link: /hardware/gpu/${p.slug}`).join("\n");
+    const softwareContext = softwareRes.data?.map(s => `- ${s.name} (Price: ${s.pricing_model}): ${s.description}. Link: /software/ai/${s.slug}`).join("\n");
+    const productContext = productRes.data?.map(p => `- ${p.title} (Score: ${p.design_score}, Price: $${p.price_from}): ${p.description}. Link: /hardware/gpu/${p.slug}`).join("\n");
 
     const systemPrompt = `You are the Fathom Layer AI Stack Copilot. Your job is to recommend technology stacks, hardware, and tools based on the user's requirements. 
     You have access to the Fathom Layer directory database. 

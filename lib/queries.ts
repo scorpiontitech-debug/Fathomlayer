@@ -98,20 +98,7 @@ export async function getProductById(id: string): Promise<Product | null> {
   return data;
 }
 
-export async function getAlternativeProducts(
-  categoryId: string,
-  excludeId: string,
-  limit: number = 3
-) {
-  const { data } = await supabasePublic()
-    .from("products")
-    .select("slug, title, design_score, price_text")
-    .eq("category_id", categoryId)
-    .neq("id", excludeId)
-    .order("design_score", { ascending: false })
-    .limit(limit);
-  return data ?? [];
-}
+
 
 export async function getBestOfCategory(categorySlug: string, limit: number = 5) {
   // First, find the category

@@ -45,7 +45,7 @@ export function CompareUI({ itemA, itemB }: { itemA: CompareItem | null; itemB: 
           <p className="mt-2 text-sm text-dim">{itemA.description}</p>
         </div>
 
-        <ProsCons pros={itemA.pros} cons={itemA.cons} idealFor="" />
+        <ProsCons pros={itemA.pros} cons={itemA.cons} idealFor={[]} />
 
         <div>
           <h3 className="font-display text-lg font-medium text-ink border-b border-edge pb-2 mb-4">Specifications</h3>
@@ -74,7 +74,7 @@ export function CompareUI({ itemA, itemB }: { itemA: CompareItem | null; itemB: 
           <p className="mt-2 text-sm text-dim">{itemB.description}</p>
         </div>
 
-        <ProsCons pros={itemB.pros} cons={itemB.cons} idealFor="" />
+        <ProsCons pros={itemB.pros} cons={itemB.cons} idealFor={[]} />
 
         <div>
           <h3 className="font-display text-lg font-medium text-ink border-b border-edge pb-2 mb-4">Specifications</h3>
