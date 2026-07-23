@@ -69,7 +69,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(\`Updated \${data.length} software item(s).\`);
+  console.log(`Updated ${data.length} software item(s).`);
 }
 
 main().catch(console.error);
