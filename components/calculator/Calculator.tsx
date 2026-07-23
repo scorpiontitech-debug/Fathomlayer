@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ProductCard } from "@/components/cards";
-import { CALC_MODELS, TIERS } from "@/lib/calculator";
+import { CALC_MODELS, TIERS, calculateRequiredVram } from "@/lib/calculator";
 import type { Product } from "@/lib/queries";
 import type { MemoryVizHandle } from "@/components/three/memoryViz";
 
@@ -19,6 +19,8 @@ export function Calculator({ items }: { items: CalculatorItem[] }) {
 
   const model = CALC_MODELS.find((m) => m.id === modelId) ?? CALC_MODELS[0];
   const matches = items.filter(({ product }) => product.tags.includes(model.tag));
+  const vramQ4 = calculateRequiredVram(model.paramsBillions, 4);
+  const vramQ8 = calculateRequiredVram(model.paramsBillions, 8);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,6 +104,17 @@ export function Calculator({ items }: { items: CalculatorItem[] }) {
             <p className="pointer-events-none absolute bottom-3 left-4 font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
               Memory per tier · drag to rotate
             </p>
+          </div>
+
+          <div className="flex justify-between rounded-lg border border-accent bg-accent-soft p-4">
+            <div>
+              <p className="text-sm font-medium text-ink">Mathematical Requirement</p>
+              <p className="mt-1 text-xs text-dim">Based on model architecture & context window</p>
+            </div>
+            <div className="text-right">
+              <p className="font-mono text-sm font-bold text-accent-bright">{vramQ4} GB VRAM</p>
+              <p className="font-mono text-[10px] uppercase text-faint">Using 4-bit Quantization</p>
+            </div>
           </div>
 
           <ul className="grid gap-px overflow-hidden rounded-lg border border-edge bg-edge sm:grid-cols-2">

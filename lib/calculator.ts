@@ -1,7 +1,6 @@
-// Calculadora de Hardware para IA Local (content-spec seção 4).
-// Não há tabela nova: os 4 escalões são lógica editorial de exibição,
-// e o cruzamento com produtos usa as tags técnicas (runs-*).
-// Os pares modelo→escalão vêm da pesquisa de mercado do seed.
+// Calculadora de Hardware para IA Local.
+// Usa os 4 escalões (tiers) para lógica visual, e cruza com os produtos via tags (runs-*).
+// Adiciona o cálculo real matemático de VRAM (Parameters * Quantization).
 
 export type Tier = {
   id: "entry" | "mid" | "enthusiast" | "professional";
@@ -46,17 +45,25 @@ export type CalcModel = {
   id: string;
   label: string;
   params: string;
+  paramsBillions: number;
   tag: string;
   minTier: number; // índice em TIERS
 };
 
 export const CALC_MODELS: CalcModel[] = [
-  { id: "phi-4-mini", label: "Phi-4-mini", params: "3.8B", tag: "runs-phi-4-mini", minTier: 0 },
-  { id: "gemma-3-4b", label: "Gemma 3 4B", params: "4B", tag: "runs-gemma-4b", minTier: 0 },
-  { id: "gemma-3-27b", label: "Gemma 3 27B", params: "27B", tag: "runs-gemma-27b", minTier: 1 },
-  { id: "qwen3-30b", label: "Qwen3 30B-A3B", params: "30B MoE", tag: "runs-qwen3-30b", minTier: 1 },
-  { id: "llama-3-3-70b", label: "Llama 3.3 70B", params: "70B", tag: "runs-llama-70b", minTier: 2 },
-  { id: "mistral-small-3-1", label: "Mistral Small 3.1", params: "24B", tag: "runs-mistral-small", minTier: 2 },
-  { id: "gpt-oss-120b", label: "gpt-oss-120b", params: "120B", tag: "runs-gpt-oss-120b", minTier: 3 },
-  { id: "llama-3-1-405b", label: "Llama 3.1 405B", params: "405B", tag: "runs-llama-405b", minTier: 3 },
+  { id: "phi-4-mini", label: "Phi-4-mini", params: "3.8B", paramsBillions: 3.8, tag: "runs-phi-4-mini", minTier: 0 },
+  { id: "gemma-3-4b", label: "Gemma 3 4B", params: "4B", paramsBillions: 4, tag: "runs-gemma-4b", minTier: 0 },
+  { id: "gemma-3-27b", label: "Gemma 3 27B", params: "27B", paramsBillions: 27, tag: "runs-gemma-27b", minTier: 1 },
+  { id: "qwen3-30b", label: "Qwen3 30B", params: "30B", paramsBillions: 30, tag: "runs-qwen3-30b", minTier: 1 },
+  { id: "deepseek-r1-70b", label: "DeepSeek R1 70B", params: "70B", paramsBillions: 70, tag: "runs-llama-70b", minTier: 2 },
+  { id: "llama-3-3-70b", label: "Llama 3.3 70B", params: "70B", paramsBillions: 70, tag: "runs-llama-70b", minTier: 2 },
+  { id: "deepseek-v3", label: "DeepSeek V3", params: "236B", paramsBillions: 236, tag: "runs-gpt-oss-120b", minTier: 3 },
+  { id: "llama-3-1-405b", label: "Llama 3.1 405B", params: "405B", paramsBillions: 405, tag: "runs-llama-405b", minTier: 3 },
 ];
+
+export function calculateRequiredVram(paramsBillions: number, quantizationBits: number = 4): number {
+  // Formula: (Billions * Bits) / 8 + 20% overhead for Context Window
+  const baseVram = (paramsBillions * quantizationBits) / 8;
+  const overhead = baseVram * 0.20;
+  return Math.ceil(baseVram + overhead);
+}

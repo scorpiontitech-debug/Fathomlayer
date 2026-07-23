@@ -12,6 +12,8 @@ const NAV = [
     label: key === "ecosystem_mobility" ? "Ecosystem" : PILLARS[key].name,
   })),
   { href: "/calculator", label: "Calculator" },
+  { href: "/api-calculator", label: "API Economics" },
+  { href: "/playbooks", label: "Playbooks" },
   { href: "/glossary", label: "Glossary" },
 ];
 
