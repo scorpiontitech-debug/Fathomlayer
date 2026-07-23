@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
+import { CommunityReviews } from "@/components/CommunityReviews";
+import { GithubStats } from "@/components/GithubStats";
 import { JsonLd } from "@/components/JsonLd";
 import { ProsCons } from "@/components/ProsCons";
+import { SaveButton } from "@/components/SaveButton";
 import { DiscontinuedBadge, DiscontinuedNotice } from "@/components/StatusBadge";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { DeepDive, FaqSection, KeyFeatures, VideoEmbed } from "@/components/RichContent";
@@ -354,7 +357,10 @@ export default async function DetailPage({
               {p.status === "archived" ? <DiscontinuedBadge /> : null}
             </div>
           </div>
-          {p.design_score !== null ? <DesignScore score={p.design_score} /> : null}
+          <div className="flex flex-col items-end gap-3">
+            {p.design_score !== null ? <DesignScore score={p.design_score} /> : null}
+            <SaveButton entityId={p.id} entityType="product" />
+          </div>
         </header>
 
         {p.image_url ? (
@@ -439,6 +445,8 @@ export default async function DetailPage({
             </Link>
           </section>
         ) : null}
+
+        <CommunityReviews entityId={p.id} entityType="product" />
       </article>
     );
   }
@@ -474,7 +482,16 @@ export default async function DetailPage({
           <VerifiedBadge verifiedAt={s.last_verified_at} />
           {s.status === "archived" ? <DiscontinuedBadge /> : null}
         </div>
+        <div className="mt-4">
+          <SaveButton entityId={s.id} entityType="software" />
+        </div>
       </header>
+
+      {s.github_repo ? (
+        <div className="reveal max-w-2xl">
+          <GithubStats repo={s.github_repo} />
+        </div>
+      ) : null}
 
       {s.image_url ? (
         <figure className="reveal flex justify-center rounded-lg border border-edge bg-surface p-8">
@@ -548,6 +565,8 @@ export default async function DetailPage({
       />
 
       <FurtherReading pages={furtherReading} />
+
+      <CommunityReviews entityId={s.id} entityType="software" />
     </article>
   );
 }

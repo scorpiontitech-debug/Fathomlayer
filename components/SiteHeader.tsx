@@ -14,7 +14,9 @@ const NAV = [
   { href: "/calculator", label: "Calculator" },
   { href: "/api-calculator", label: "API Economics" },
   { href: "/playbooks", label: "Playbooks" },
+  { href: "/compare", label: "Compare" },
   { href: "/glossary", label: "Glossary" },
+  { href: "/profile", label: "My Stack" },
 ];
 
 // `showSetups` vem do layout: Setups só entra no menu quando existe pelo

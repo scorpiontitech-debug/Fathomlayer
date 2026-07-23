@@ -64,6 +64,97 @@ export type Database = {
           },
         ]
       }
+      community_reviews: {
+        Row: {
+          id: string
+          user_id: string
+          entity_type: string
+          entity_id: string
+          rating: number
+          comment: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          entity_type: string
+          entity_id: string
+          rating: number
+          comment: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          entity_type?: string
+          entity_id?: string
+          rating?: number
+          comment?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          username: string
+          avatar_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id: string
+          username: string
+          avatar_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          username?: string
+          avatar_url?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      user_saves: {
+        Row: {
+          id: string
+          user_id: string
+          entity_type: string
+          entity_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          entity_type: string
+          entity_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          entity_type?: string
+          entity_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_saves_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       editorial_pages: {
         Row: {
           body_markdown: string
@@ -439,6 +530,7 @@ export type Database = {
           image_url: string | null
           body_markdown: string | null
           faqs: Json
+          github_repo: string | null
           key_features: string[]
           video_url: string | null
           is_indexable: boolean
@@ -469,6 +561,7 @@ export type Database = {
           image_url?: string | null
           body_markdown?: string | null
           faqs?: Json
+          github_repo?: string | null
           key_features?: string[]
           video_url?: string | null
           is_indexable?: boolean
@@ -499,6 +592,7 @@ export type Database = {
           image_url?: string | null
           body_markdown?: string | null
           faqs?: Json
+          github_repo?: string | null
           key_features?: string[]
           video_url?: string | null
           is_indexable?: boolean

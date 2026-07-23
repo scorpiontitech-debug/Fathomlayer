@@ -34,3 +34,9 @@ export async function requireAdmin() {
   }
   return user;
 }
+
+export async function requireUser() {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+  return user;
+}
