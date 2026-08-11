@@ -34,33 +34,26 @@ export function SiteFooter({ showRadar = false }: { showRadar?: boolean }) {
             © {new Date().getFullYear()} Fathom Layer · fathomlayer.com
           </p>
         </div>
-        <nav aria-label="Legal" className="flex flex-col gap-2 sm:text-right">
-          <Link href="/about" className="text-dim transition-colors hover:text-ink">
-            About
-          </Link>
-          <Link href="/glossary" className="text-dim transition-colors hover:text-ink">
-            Glossary
-          </Link>
-          <Link href="/guides" className="text-dim transition-colors hover:text-ink">
-            Buying guides
-          </Link>
-          {showRadar ? (
-            <Link href="/radar" className="text-dim transition-colors hover:text-ink">
-              Launch radar
-            </Link>
-          ) : null}
-          <Link href="/methodology" className="text-dim transition-colors hover:text-ink">
-            Methodology
-          </Link>
-          <Link href="/affiliate-disclosure" className="text-dim transition-colors hover:text-ink">
-            Affiliate disclosure
-          </Link>
-          <Link href="/privacy" className="text-dim transition-colors hover:text-ink">
-            Privacy
-          </Link>
-          <Link href="/contact" className="text-dim transition-colors hover:text-ink">
-            Contact
-          </Link>
+        <nav aria-label="Footer" className="flex flex-wrap gap-10 sm:text-right sm:justify-end">
+          <div className="flex flex-col gap-2 text-left sm:text-right">
+            <Link href="/about" className="text-dim transition-colors hover:text-ink">About</Link>
+            <Link href="/methodology" className="text-dim transition-colors hover:text-ink">Methodology</Link>
+            <Link href="/glossary" className="text-dim transition-colors hover:text-ink">Glossary</Link>
+            <Link href="/guides" className="text-dim transition-colors hover:text-ink">Buying guides</Link>
+            {showRadar ? <Link href="/radar" className="text-dim transition-colors hover:text-ink">Launch radar</Link> : null}
+            <Link href="/trending" className="text-dim transition-colors hover:text-ink">Trending</Link>
+            <Link href="/playbooks" className="text-dim transition-colors hover:text-ink">Playbooks</Link>
+          </div>
+          <div className="flex flex-col gap-2 text-left sm:text-right">
+            <Link href="/calculator" className="text-dim transition-colors hover:text-ink">Calculator</Link>
+            <Link href="/api-calculator" className="text-dim transition-colors hover:text-ink">API Economics</Link>
+            <Link href="/copilot" className="text-dim transition-colors hover:text-ink">AI Copilot</Link>
+            <Link href="/submit" className="text-dim transition-colors hover:text-ink">Submit</Link>
+            <Link href="/profile" className="text-dim transition-colors hover:text-ink">My Stack</Link>
+            <Link href="/affiliate-disclosure" className="text-dim transition-colors hover:text-ink">Affiliate disclosure</Link>
+            <Link href="/privacy" className="text-dim transition-colors hover:text-ink">Privacy</Link>
+            <Link href="/contact" className="text-dim transition-colors hover:text-ink">Contact</Link>
+          </div>
         </nav>
       </div>
     </footer>

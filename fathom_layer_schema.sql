@@ -121,6 +121,10 @@ create table software (
 
     editorial_notes text,
 
+    pro_tips        text[] not null default '{}',
+    prompts_templates jsonb not null default '[]'::jsonb,
+    integrations    text[] not null default '{}',
+    key_features    text[] not null default '{}',
     status          text not null default 'draft' check (status in ('draft', 'published', 'archived')),
     is_indexable    boolean not null default false,
 

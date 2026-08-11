@@ -47,17 +47,19 @@ export function CompareUI({ itemA, itemB }: { itemA: CompareItem | null; itemB: 
 
         <ProsCons pros={itemA.pros} cons={itemA.cons} idealFor={[]} />
 
-        <div>
-          <h3 className="font-display text-lg font-medium text-ink border-b border-edge pb-2 mb-4">Specifications</h3>
-          <ul className="divide-y divide-edge">
-            {allSpecKeys.map((key) => (
-              <li key={key} className="flex justify-between py-2 text-sm">
-                <span className="text-faint">{key}</span>
-                <span className="text-dim font-medium text-right max-w-[60%]">{itemA.specs?.[key] || "—"}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {allSpecKeys.length > 0 && (
+          <div>
+            <h3 className="font-display text-lg font-medium text-ink border-b border-edge pb-2 mb-4">Specifications</h3>
+            <ul className="divide-y divide-edge">
+              {allSpecKeys.map((key) => (
+                <li key={key} className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4 py-3 text-sm">
+                  <span className="text-faint shrink-0">{key}</span>
+                  <span className="text-dim font-medium sm:text-right w-full sm:max-w-[60%] break-words">{itemA.specs?.[key] || "—"}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Column B */}
@@ -76,17 +78,19 @@ export function CompareUI({ itemA, itemB }: { itemA: CompareItem | null; itemB: 
 
         <ProsCons pros={itemB.pros} cons={itemB.cons} idealFor={[]} />
 
-        <div>
-          <h3 className="font-display text-lg font-medium text-ink border-b border-edge pb-2 mb-4">Specifications</h3>
-          <ul className="divide-y divide-edge">
-            {allSpecKeys.map((key) => (
-              <li key={key} className="flex justify-between py-2 text-sm">
-                <span className="text-faint">{key}</span>
-                <span className="text-dim font-medium text-right max-w-[60%]">{itemB.specs?.[key] || "—"}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {allSpecKeys.length > 0 && (
+          <div>
+            <h3 className="font-display text-lg font-medium text-ink border-b border-edge pb-2 mb-4">Specifications</h3>
+            <ul className="divide-y divide-edge">
+              {allSpecKeys.map((key) => (
+                <li key={key} className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4 py-3 text-sm">
+                  <span className="text-faint shrink-0">{key}</span>
+                  <span className="text-dim font-medium sm:text-right w-full sm:max-w-[60%] break-words">{itemB.specs?.[key] || "—"}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
     </div>

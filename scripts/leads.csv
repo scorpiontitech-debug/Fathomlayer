@@ -1,0 +1,26 @@
+Name,Slug,Category,Pillar,Website,Contact Email / Twitter (Manual),Status
+"Lindy AI",lindy-ai,"AI Software",intelligence,"https://lindy.ai","",Pending
+"Copy.ai",copy-ai,"AI Software",intelligence,"https://copy.ai","",Pending
+"Jasper AI",jasper-ai,"AI Software",intelligence,"https://jasper.ai","",Pending
+"Notion AI",notion-ai,"MCP Servers",intelligence,"https://notion.so","",Pending
+"Stripe MCP Server",stripe-mcp-server,"MCP Servers",intelligence,"https://stripe.com","",Pending
+"GitHub MCP Server",github-mcp-server,"MCP Servers",intelligence,"https://github.com","",Pending
+"Slack MCP Server",slack-mcp-server,"MCP Servers",intelligence,"https://slack.com","",Pending
+"Surfer SEO",surfer-seo,"AI Software",intelligence,"https://surferseo.com","",Pending
+"ChatGPT",chatgpt,"AI Software",intelligence,"","",Pending
+"Claude",claude,"AI Software",intelligence,"","",Pending
+"Google Gemini",google-gemini,"AI Software",intelligence,"","",Pending
+"Cursor",cursor,"AI Software",intelligence,"","",Pending
+"Bolt.new",bolt-new,"AI Software",intelligence,"","",Pending
+"Midjourney",midjourney,"AI Software",intelligence,"","",Pending
+"Perplexity",perplexity-ai,"AI Software",intelligence,"","",Pending
+"ElevenLabs",elevenlabs,"AI Software",intelligence,"","",Pending
+"Gamma",gamma,"AI Software",intelligence,"https://gamma.app","",Pending
+"Zapier Central",zapier-central,"AI Software",intelligence,"","",Pending
+"Zapier",zapier,"MCP Servers",intelligence,"","",Pending
+"n8n",n8n,"MCP Servers",intelligence,"","",Pending
+"Google Veo 3.1",google-veo,"MCP Servers",intelligence,"","",Pending
+"GitHub Copilot",github-copilot,"MCP Servers",intelligence,"","",Pending
+"Lovable",lovable,"MCP Servers",intelligence,"","",Pending
+"NotebookLM",notebooklm,"MCP Servers",intelligence,"","",Pending
+"Cursor",cursor-ai,"AI Software",intelligence,"","",Pending

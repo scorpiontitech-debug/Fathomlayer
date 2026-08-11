@@ -9,6 +9,7 @@ export type LinkRow = Tables<"links">;
 export type Setup = Tables<"setups">;
 export type SetupItem = Tables<"setup_items">;
 export type EditorialPage = Tables<"editorial_pages">;
+export type Workflow = Tables<"workflows">;
 
 // Todas as leituras usam o cliente público: a RLS garante que só conteúdo
 // aprovado pelos quality gates chega às páginas.
@@ -19,6 +20,23 @@ export async function getIndexableCategories(): Promise<Category[]> {
     .select("*")
     .order("name");
   return data ?? [];
+}
+
+export async function getWorkflows(): Promise<Workflow[]> {
+  const { data } = await supabasePublic()
+    .from("workflows")
+    .select("*")
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+export async function getWorkflowBySlug(slug: string): Promise<Workflow | null> {
+  const { data } = await supabasePublic()
+    .from("workflows")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+  return data;
 }
 
 export async function getCategoriesByPillar(pillar: PillarKey): Promise<Category[]> {
@@ -113,7 +131,7 @@ export async function getBestOfCategory(categorySlug: string, limit: number = 5)
   // Fetch top products
   const { data: products } = await supabasePublic()
     .from("products")
-    .select("id, title, slug, design_score, image_url, price_text, description, status")
+    .select("id, title, slug, design_score, image_url, description, status")
     .eq("category_id", category.id)
     .order("design_score", { ascending: false })
     .limit(limit);
@@ -121,15 +139,15 @@ export async function getBestOfCategory(categorySlug: string, limit: number = 5)
   // Fetch top software
   const { data: software } = await supabasePublic()
     .from("software")
-    .select("id, name, slug, design_score, image_url, price_text, description, status")
+    .select("id, name, slug, image_url, price_text, description, status, updated_at")
     .eq("category_id", category.id)
-    .order("design_score", { ascending: false })
+    .order("updated_at", { ascending: false })
     .limit(limit);
 
   // Combine and sort
   const combined = [
-    ...(products ?? []).map(p => ({ ...p, type: 'product', title: p.title })),
-    ...(software ?? []).map(s => ({ ...s, type: 'software', title: s.name }))
+    ...(products ?? []).map(p => ({ ...p, type: 'product', title: p.title, price_text: null as string | null })),
+    ...(software ?? []).map(s => ({ ...s, type: 'software', title: s.name, design_score: null as number | null }))
   ];
 
   combined.sort((a, b) => (b.design_score ?? 0) - (a.design_score ?? 0));

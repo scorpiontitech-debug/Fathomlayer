@@ -3,7 +3,9 @@ import { Instrument_Sans, JetBrains_Mono, Space_Grotesk } from "next/font/google
 import { MotionLayer } from "@/components/motion/MotionLayer";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { JsonLd } from "@/components/JsonLd";
 import { getEditorialPages, getPublishedSetups } from "@/lib/queries";
+import { organizationLd, websiteLd } from "@/lib/seo";
 import "./globals.css";
 
 // Tipografia (design system seção 3): grotesca geométrica para headings,
@@ -59,6 +61,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         >
           Skip to content
         </a>
+        <JsonLd data={organizationLd()} />
+        <JsonLd data={websiteLd()} />
         <MotionLayer />
         <SiteHeader showSetups={setups.length > 0} />
         <main id="content" className="mx-auto w-full max-w-6xl flex-1 px-5 pb-24 pt-10">

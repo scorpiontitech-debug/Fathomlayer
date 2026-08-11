@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 import { CommunityReviews } from "@/components/CommunityReviews";
 import { CopyBadge } from "@/components/CopyBadge";
+import { EmbedBadge } from "@/components/EmbedBadge";
 import { PriceAlertButton } from "@/components/PriceAlertButton";
+import { ShareButtons } from "@/components/ShareButtons";
 import { GithubStats } from "@/components/GithubStats";
 import { JsonLd } from "@/components/JsonLd";
 import { ProsCons } from "@/components/ProsCons";
@@ -12,6 +14,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { DiscontinuedBadge, DiscontinuedNotice } from "@/components/StatusBadge";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { DeepDive, FaqSection, KeyFeatures, VideoEmbed } from "@/components/RichContent";
+import CopyPromptButton from "@/components/CopyPromptButton";
 import {
   getAggregateRating,
   getAlternativeProducts,
@@ -330,6 +333,13 @@ export default async function DetailPage({
 
     const aggregateRating = await getAggregateRating("product", p.id);
 
+    const { data: initialReviewsData } = await supabasePublic()
+      .from("community_reviews")
+      .select(`id, rating, comment, created_at, user_profiles ( username )`)
+      .eq("entity_id", p.id)
+      .order("created_at", { ascending: false });
+    const initialReviews = initialReviewsData || [];
+
     return (
       <article className="space-y-12">
         <JsonLd data={productLd(p, category, path, aggregateRating)} />
@@ -337,50 +347,74 @@ export default async function DetailPage({
 
         <Breadcrumb pillar={pillar} category={category} />
 
-        <header className="flex flex-wrap items-start justify-between gap-6">
-          <div className="max-w-2xl">
+        <header className="relative flex flex-col md:flex-row md:items-center justify-between gap-8 rounded-2xl border border-edge bg-surface/50 p-6 md:p-8 backdrop-blur-sm">
+          <div className="max-w-xl">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              {p.brand ? <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-bright">{p.brand}</span> : null}
+              {p.brand && tier ? <span className="text-edge-strong">|</span> : null}
+              {tier ? (
+                <span className="font-mono text-xs uppercase tracking-[0.14em] text-dim">{tier} tier</span>
+              ) : null}
+            </div>
             <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
               {p.title}
             </h1>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-dim">
-              {p.brand ? <span>{p.brand}</span> : null}
-              {p.brand && tier ? <span className="text-faint">·</span> : null}
-              {tier ? (
-                <span className="font-mono text-xs uppercase tracking-[0.14em]">{tier} tier</span>
-              ) : null}
-              {p.price_from !== null ? (
-                <>
-                  <span className="text-faint">·</span>
-                  <span className="font-mono tabular-nums">
-                    from {formatPrice(p.price_from, p.price_currency)}
-                  </span>
-                </>
-              ) : null}
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <VerifiedBadge verifiedAt={p.last_verified_at} />
               {p.status === "archived" ? <DiscontinuedBadge /> : null}
             </div>
+            {p.price_from !== null ? (
+              <div className="mt-6 font-mono tabular-nums text-xl">
+                <span className="text-faint text-sm mr-2">Starting at</span>
+                {formatPrice(p.price_from, p.price_currency)}
+              </div>
+            ) : null}
           </div>
-          <div className="flex flex-col items-end gap-3">
+          <div className="flex flex-col items-end gap-4 md:min-w-[200px]">
             {p.design_score !== null ? <DesignScore score={p.design_score} /> : null}
-            <div className="flex gap-2">
+            <div className="flex w-full flex-col gap-2 sm:flex-row md:flex-col mt-2">
               <PriceAlertButton entityId={p.id} entityType="product" />
               <SaveButton entityId={p.id} entityType="product" />
             </div>
+            <ShareButtons title={p.title} score={p.design_score} urlPath={`/${pillar}/${category}/${slug}`} />
           </div>
         </header>
 
-        {p.image_url ? (
-          <figure className="reveal flex justify-center rounded-lg border border-edge bg-surface p-8">
-            <img
-              src={p.image_url}
-              alt={p.title}
-              className="max-h-[400px] w-auto max-w-full object-contain"
-              loading="lazy"
-            />
+        {/* Visual Highlights & Image Fallback */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <figure className={`md:col-span-2 reveal flex items-center justify-center rounded-xl border border-edge p-8 overflow-hidden relative ${p.image_url ? 'bg-surface' : 'bg-gradient-to-br from-surface via-surface to-edge/20 min-h-[350px]'}`}>
+            {p.image_url ? (
+              <img
+                src={p.image_url}
+                alt={p.title}
+                className="max-h-[400px] w-auto max-w-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-out"
+                loading="lazy"
+              />
+            ) : (
+              <div className="text-center">
+                <div className="font-display text-6xl text-edge-strong opacity-40 font-bold tracking-tighter blur-[1px]">
+                  {p.brand || "FATHOM"}
+                </div>
+                <div className="mt-2 font-mono text-xs uppercase tracking-widest text-faint">Image Unavailable</div>
+              </div>
+            )}
           </figure>
-        ) : null}
+
+          <div className="flex flex-col gap-3">
+            {specEntries(p.specs).slice(0, 4).map((entry, i) => (
+              <div key={entry.key} className="flex-1 rounded-xl border border-edge bg-surface/30 p-5 flex flex-col justify-center reveal" style={{ animationDelay: `${i * 100}ms` }}>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint mb-1">{entry.label}</span>
+                <span className="font-medium text-sm text-ink line-clamp-2">{entry.value}</span>
+              </div>
+            ))}
+            {specEntries(p.specs).length === 0 && (
+              <div className="flex-1 rounded-xl border border-edge bg-surface/30 p-5 flex flex-col justify-center items-center text-center reveal">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint mb-1">Status</span>
+                <span className="font-medium text-sm text-dim">Specs Pending</span>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Bloco de resposta atômica (≤150 palavras) — checklist GEO §8 */}
         {p.description ? (
@@ -416,11 +450,14 @@ export default async function DetailPage({
         {p.status === "archived" ? (
           <DiscontinuedNotice kind="product" />
         ) : (
-          <OutLinks links={links} />
+          <>
+            <CommunityReviews entityId={p.id} entityType="product" initialReviews={initialReviews as any} />
+            <OutLinks links={links} />
+          </>
         )}
 
         <AlternativesBlock
-          items={alternatives.map((alt) => ({
+          items={alternatives.map((alt: any) => ({
             slug: alt.slug,
             title: alt.title,
             score: alt.design_score,
@@ -454,7 +491,11 @@ export default async function DetailPage({
           </section>
         ) : null}
 
-        <CommunityReviews entityId={p.id} entityType="product" />
+        <div className="reveal">
+          <EmbedBadge itemSlug={p.slug} />
+        </div>
+
+        <CommunityReviews entityId={p.id} entityType="product" initialReviews={initialReviews as any} />
       </article>
     );
   }
@@ -468,6 +509,13 @@ export default async function DetailPage({
 
   const aggregateRating = await getAggregateRating("software", s.id);
 
+  const { data: initialReviewsData } = await supabasePublic()
+    .from("community_reviews")
+    .select(`id, rating, comment, created_at, user_profiles ( username )`)
+    .eq("entity_id", s.id)
+    .order("created_at", { ascending: false });
+  const initialReviews = initialReviewsData || [];
+
   return (
     <article className="space-y-12">
       <JsonLd data={softwareLd(s, category, path, aggregateRating)} />
@@ -475,25 +523,41 @@ export default async function DetailPage({
 
       <Breadcrumb pillar={pillar} category={category} />
 
-      <header className="max-w-2xl">
-        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-          {s.name}
-        </h1>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-dim">
-          {s.pricing_model ? (
-            <span className="font-mono text-xs uppercase tracking-[0.14em]">
-              {s.pricing_model}
-            </span>
+      <header className="relative flex flex-col md:flex-row md:items-center justify-between gap-8 rounded-2xl border border-edge bg-surface/50 p-6 md:p-8 backdrop-blur-sm">
+        <div className="max-w-xl">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            {s.pricing_model ? (
+              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-bright">
+                {s.pricing_model}
+              </span>
+            ) : null}
+          </div>
+          <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            {s.name}
+          </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <VerifiedBadge verifiedAt={s.last_verified_at} />
+            {s.status === "archived" ? <DiscontinuedBadge /> : null}
+          </div>
+          {s.price_text ? (
+            <div className="mt-6 font-mono tabular-nums text-lg text-ink">
+              {s.price_text}
+            </div>
           ) : null}
-          {s.pricing_model && s.price_text ? <span className="text-faint">·</span> : null}
-          {s.price_text ? <span className="font-mono tabular-nums">{s.price_text}</span> : null}
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <VerifiedBadge verifiedAt={s.last_verified_at} />
-          {s.status === "archived" ? <DiscontinuedBadge /> : null}
-        </div>
-        <div className="mt-4">
+        <div className="flex flex-col gap-3 md:min-w-[200px]">
           <SaveButton entityId={s.id} entityType="software" />
+          {s.website_url ? (
+            <a
+              href={s.website_url}
+              rel="nofollow noopener"
+              target="_blank"
+              className="flex items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-surface transition-colors hover:bg-dim hover:text-white"
+            >
+              Visit Website ↗
+            </a>
+          ) : null}
+          <ShareButtons title={s.name} score={null} urlPath={`/${pillar}/${category}/${slug}`} />
         </div>
       </header>
 
@@ -503,16 +567,23 @@ export default async function DetailPage({
         </div>
       ) : null}
 
-      {s.image_url ? (
-        <figure className="reveal flex justify-center rounded-lg border border-edge bg-surface p-8">
+      <figure className={`reveal flex items-center justify-center rounded-xl border border-edge p-8 overflow-hidden relative ${s.image_url ? 'bg-surface' : 'bg-gradient-to-br from-surface via-surface to-edge/20 min-h-[350px]'}`}>
+        {s.image_url ? (
           <img
             src={s.image_url}
             alt={s.name}
-            className="max-h-[400px] w-auto max-w-full object-contain"
+            className="max-h-[400px] w-auto max-w-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-out"
             loading="lazy"
           />
-        </figure>
-      ) : null}
+        ) : (
+          <div className="text-center">
+            <div className="font-display text-6xl text-edge-strong opacity-40 font-bold tracking-tighter blur-[1px]">
+              {s.name}
+            </div>
+            <div className="mt-2 font-mono text-xs uppercase tracking-widest text-faint">App Interface</div>
+          </div>
+        )}
+      </figure>
 
       {s.description ? (
         <section className="max-w-2xl border-l-2 border-accent pl-5">
@@ -526,6 +597,60 @@ export default async function DetailPage({
       <ProsCons pros={s.pros} cons={s.cons} idealFor={s.ideal_for} />
 
       {s.key_features && s.key_features.length > 0 ? <KeyFeatures features={s.key_features} /> : null}
+
+      {/* --- Utility Layer --- */}
+      {(s.integrations && s.integrations.length > 0) || (s.pro_tips && s.pro_tips.length > 0) || (s.prompts_templates && Array.isArray(s.prompts_templates) && s.prompts_templates.length > 0) ? (
+        <section className="reveal max-w-2xl space-y-8 py-8 border-y border-edge/50">
+          <h2 className="font-display text-2xl font-semibold">Utility Hub</h2>
+          
+          {s.integrations && s.integrations.length > 0 ? (
+            <div>
+              <h3 className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint mb-3">Integrates with</h3>
+              <div className="flex flex-wrap gap-2">
+                {s.integrations.map((int: any) => (
+                  <span key={int} className="px-3 py-1 rounded-full bg-surface border border-edge text-sm text-dim hover:text-ink hover:border-accent transition-colors">
+                    {int}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {s.pro_tips && s.pro_tips.length > 0 ? (
+            <div>
+              <h3 className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint mb-3">Pro Tips & Shortcuts</h3>
+              <ul className="space-y-3">
+                {s.pro_tips.map((tip: any, idx: number) => (
+                  <li key={tip} className="flex items-start text-sm text-dim bg-subtle p-3 rounded-lg border border-transparent hover:border-edge transition-colors">
+                    <span className="text-accent mr-3">💡</span>
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {s.prompts_templates && Array.isArray(s.prompts_templates) && s.prompts_templates.length > 0 ? (
+            <div>
+              <h3 className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint mb-3">Copy-Paste Templates</h3>
+              <div className="space-y-4">
+                {(s.prompts_templates as any[]).map((prompt, idx) => (
+                  <div key={prompt.title} className="relative rounded-xl border border-edge bg-surface overflow-hidden group">
+                    <div className="bg-subtle px-4 py-2 border-b border-edge text-sm font-medium text-ink flex items-center justify-between">
+                      {prompt.title}
+                    </div>
+                    <div className="p-4 pr-12 text-sm font-mono text-dim whitespace-pre-wrap">
+                      {prompt.text}
+                    </div>
+                    <CopyPromptButton promptText={prompt.text} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+      {/* --------------------- */}
 
       {s.editorial_notes ? (
         <section className="reveal max-w-2xl rounded-lg border border-edge bg-surface p-6">
@@ -546,19 +671,9 @@ export default async function DetailPage({
         <DiscontinuedNotice kind="software" />
       ) : (
         <>
-          {s.website_url ? (
-            <p className="reveal">
-              <a
-                href={s.website_url}
-                rel="nofollow noopener"
-                target="_blank"
-                className="nav-link text-sm text-accent-bright"
-              >
-                Official website ↗
-              </a>
-            </p>
-          ) : null}
+          {/* website_url rendered in the header above */}
 
+          <CommunityReviews entityId={s.id} entityType="software" initialReviews={initialReviews as any} />
           <OutLinks links={links} />
         </>
       )}
@@ -578,7 +693,11 @@ export default async function DetailPage({
 
       {/* Software doesn't have a design_score. Only products do. */}
 
-      <CommunityReviews entityId={s.id} entityType="software" />
+      <div className="reveal">
+        <EmbedBadge itemSlug={s.slug} />
+      </div>
+
+      <CommunityReviews entityId={s.id} entityType="software" initialReviews={initialReviews as any} />
     </article>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cardSpecs, tierLabel } from "@/lib/spec-display";
 import type { Product, Software } from "@/lib/queries";
 
@@ -45,11 +46,12 @@ export function ProductCard({ product, href }: { product: Product; href: string 
 
       {product.image_url ? (
         <div className="mt-4 flex h-32 items-center justify-center p-2">
-          <img
+          <Image
             src={product.image_url}
             alt={product.title}
+            width={400}
+            height={400}
             className="max-h-full w-auto object-contain mix-blend-screen"
-            loading="lazy"
           />
         </div>
       ) : null}
@@ -105,11 +107,12 @@ export function SoftwareCard({ software, href }: { software: Software; href: str
 
       {software.image_url ? (
         <div className="mt-4 flex h-32 items-center justify-center p-2">
-          <img
+          <Image
             src={software.image_url}
             alt={software.name}
+            width={400}
+            height={400}
             className="max-h-full w-auto object-contain mix-blend-screen"
-            loading="lazy"
           />
         </div>
       ) : null}

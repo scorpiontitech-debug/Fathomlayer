@@ -19,6 +19,7 @@ export async function generateSitemaps() {
     { id: "products" },
     { id: "software" },
     { id: "editorial" },
+    { id: "news" },
   ];
 }
 
@@ -60,6 +61,7 @@ export default async function sitemap({
       entry("/glossary", undefined, "weekly", 0.5),
       entry("/guides", undefined, "weekly", 0.5),
       ...(launches.length > 0 ? [entry("/radar", undefined, "weekly", 0.5)] : []),
+      entry("/news", undefined, "daily", 0.9),
       entry("/methodology", undefined, "monthly", 0.5),
       entry("/about", undefined, "monthly", 0.4),
       entry("/affiliate-disclosure", undefined, "yearly", 0.2),
@@ -114,6 +116,17 @@ export default async function sitemap({
       ...guides.map((p) => entry(`/guides/${p.slug}`, p.updated_at, "monthly", 0.5)),
       ...launches.map((p) => entry(`/radar/${p.slug}`, p.updated_at, "weekly", 0.5)),
     ];
+  }
+
+  if (id === "news") {
+    const { data } = await supabasePublic()
+      .from("content_posts" as any)
+      .select("slug, updated_at")
+      .eq("status", "published");
+      
+    return (data ?? []).map((post: any) => 
+      entry(`/news/${post.slug}`, post.updated_at, "weekly", 0.8)
+    );
   }
 
   return [];

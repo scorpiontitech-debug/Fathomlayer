@@ -1,0 +1,44 @@
+name: E2E and Visual Regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Playwright Tests & Percy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter and typecheck
+        run: |
+          npm run lint
+          npx tsc --noEmit
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+
+      # Exemplo de integração Percy para Visual Regression Testing (Nível Awwwards)
+      # - name: Run Percy Visual Tests
+      #   run: npx percy exec -- npx playwright test
+      #   env:
+      #     PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

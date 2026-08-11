@@ -1,72 +1,53 @@
 import type { Metadata } from "next";
-import { CompareUI } from "@/components/CompareUI";
-import { getProductBySlug, getSoftwareBySlug } from "@/lib/queries";
+import Link from "next/link";
+import { SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Head-to-Head Comparison",
-  description: "Compare Specs, Pricing, and VRAM requirements side-by-side.",
+  title: "Compare AI Tools & Hardware",
+  description: "Head-to-head comparisons of the best AI tools, software, and local hardware.",
   alternates: { canonical: "/compare" },
 };
 
-async function fetchItem(slug?: string) {
-  if (!slug) return null;
-  // Try product first, then software
-  const product = await getProductBySlug(slug);
-  if (product) {
-    return {
-      id: product.id,
-      title: product.title,
-      slug: product.slug,
-      image_url: product.image_url ?? null,
-      description: product.description ?? null,
-      pros: product.pros || [],
-      cons: product.cons || [],
-      specs: (product.specs as Record<string, string>) || {}
-    };
-  }
-  
-  const software = await getSoftwareBySlug(slug);
-  if (software) {
-    return {
-      id: software.id,
-      title: software.name,
-      slug: software.slug,
-      image_url: software.image_url ?? null,
-      description: software.description ?? null,
-      pros: software.pros || [],
-      cons: software.cons || [],
-      specs: {}
-    };
-  }
-
-  return null;
-}
-
-export default async function ComparePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ a?: string; b?: string }>;
-}) {
-  const params = await searchParams;
-  const itemA = await fetchItem(params.a);
-  const itemB = await fetchItem(params.b);
+export default function CompareIndexPage() {
+  const popularComparisons = [
+    { title: "Zapier vs n8n", slug: "zapier-vs-n8n", desc: "The ultimate automation showdown." },
+    { title: "GitHub Copilot vs Cursor", slug: "github-copilot-vs-cursor", desc: "Which AI coding assistant boosts productivity the most?" },
+    { title: "ChatGPT vs Claude", slug: "chatgpt-vs-claude", desc: "The battle of the frontier LLMs." },
+    { title: "Mac Studio vs Threadripper", slug: "mac-studio-vs-threadripper", desc: "Local AI compute: Apple Silicon vs x86." },
+  ];
 
   return (
     <div className="space-y-12 pb-24">
       <header className="rise-group max-w-3xl">
         <p className="font-mono text-xs uppercase tracking-[0.22em] text-dim">
-          Decision Engine
+          Versus Engine
         </p>
         <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-          Head-to-Head Comparison
+          Head-to-Head Comparisons
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-dim">
           Don't guess. Compare specs, pricing, and capabilities side-by-side to make the right choice for your stack.
         </p>
       </header>
 
-      <div className="reveal">
-        <CompareUI itemA={itemA} itemB={itemB} />
+      <div className="reveal grid gap-4 sm:grid-cols-2 max-w-4xl">
+        {popularComparisons.map((comp) => (
+          <Link
+            key={comp.slug}
+            href={`/compare/${comp.slug}`}
+            className="group flex flex-col justify-between rounded-xl border border-edge bg-surface p-6 transition-colors hover:border-accent"
+          >
+            <div>
+              <h2 className="font-display text-xl font-semibold text-ink group-hover:text-accent transition-colors">
+                {comp.title}
+              </h2>
+              <p className="mt-2 text-sm text-dim">{comp.desc}</p>
+            </div>
+            <div className="mt-6 flex items-center text-sm font-medium text-accent">
+              Compare <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );
