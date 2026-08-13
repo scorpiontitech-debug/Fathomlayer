@@ -8,7 +8,7 @@ export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const p = await params;
-  const wf = await getWorkflowBySlug(p.slug);
+  const wf = await getWorkflowBySlug(p.slug) as any;
   if (!wf) return {};
   return {
     title: `${wf.title} - AI Workflow Blueprint | Fathom Layer`,
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function WorkflowDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const p = await params;
-  const wf = await getWorkflowBySlug(p.slug);
+  const wf = await getWorkflowBySlug(p.slug) as any;
   
   if (!wf) notFound();
 

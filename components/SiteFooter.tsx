@@ -52,9 +52,15 @@ export function SiteFooter({ showRadar = false }: { showRadar?: boolean }) {
             <Link href="/profile" className="text-dim transition-colors hover:text-ink">My Stack</Link>
             <Link href="/affiliate-disclosure" className="text-dim transition-colors hover:text-ink">Affiliate disclosure</Link>
             <Link href="/privacy" className="text-dim transition-colors hover:text-ink">Privacy</Link>
-            <Link href="/contact" className="text-dim transition-colors hover:text-ink">Contact</Link>
           </div>
         </nav>
+      </div>
+      
+      {/* Tipografia Brutal Awwwards */}
+      <div className="overflow-hidden border-t border-white/5 pt-8 mt-12">
+        <h2 className="text-[12vw] font-display font-bold leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/10 to-transparent text-center select-none pointer-events-none">
+          FATHOM
+        </h2>
       </div>
     </footer>
   );

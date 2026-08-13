@@ -1,0 +1,27 @@
+# Fathom Layer - PQC Edge Security Configuration
+# Fase 1: Alicerce Phygital e Agentic (2026-2027)
+
+[security.pqc]
+# Força a negociação híbrida de troca de chaves pós-quântica (X25519MLKEM768)
+# Previne ataques de 'Harvest Now, Decrypt Later' em clientes biológicos e wearables.
+enable_ml_kem = true
+minimum_tls_version = "1.3"
+
+[network.tcp]
+# Aumentar a TCP Initial Window (IW) de 10 para 20-30.
+# Certificados PQC (como ML-DSA) são consideravelmente maiores que ECC/RSA (podem exceder 10KB).
+# Sem esse ajuste, a fragmentação dos pacotes no aperto de mão aumentaria a latência das RTTs.
+initial_window_size = 30
+
+[network.routing]
+# BGP ASPA (Autonomous System Provider Authorization)
+# Evita sequestros de rotas que redirecionem pacotes valiosos da Mastra Network.
+require_aspa_validation = true
+
+[edge_compute]
+# Diretivas W3C para suportar a transferência otimizada de vetores NPU (WebNN)
+headers = [
+  { key = "Origin-Trial", value = "WEBNN_API_EXPERIMENTAL_TOKEN" },
+  { key = "Cross-Origin-Opener-Policy", value = "same-origin" },
+  { key = "Cross-Origin-Embedder-Policy", value = "require-corp" }
+]

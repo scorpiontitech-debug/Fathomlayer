@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { CompareUI } from "@/components/CompareUI";
 import { DecisionMatrix } from "@/components/DecisionMatrix";
 import { getProductBySlug, getSoftwareBySlug } from "@/lib/queries";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 // This enables dynamic comparison routes like /compare/zapier-vs-make
 export const dynamicParams = true;
@@ -42,8 +42,8 @@ async function fetchItem(slug: string) {
       specs: {}, // software usually uses features instead of raw specs, but we can pass empty
       // Matrix fields
       price_from: software.price_from,
-      integrations: software.integrations || [],
-      key_features: software.key_features || []
+      integrations: (software as any).integrations || [],
+      key_features: (software as any).key_features || []
     };
   }
 
@@ -103,8 +103,21 @@ export default async function VersusPage({
     notFound();
   }
 
+  const title = `${itemA.title} vs ${itemB.title}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: title,
+    description: `Compare ${itemA.title} and ${itemB.title}. See which is the best choice based on pricing, features, and ecosystem.`,
+    url: `${SITE_URL}/compare/${slugs}`,
+  };
+
   return (
     <div className="space-y-12 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="rise-group max-w-3xl">
         <p className="font-mono text-xs uppercase tracking-[0.22em] text-dim">
           Versus Engine

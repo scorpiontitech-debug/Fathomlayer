@@ -30,7 +30,7 @@ export default async function WorkflowsIndexPage() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {workflows.map((wf) => (
+          {(workflows as any[]).map((wf) => (
             <Link
               key={wf.id}
               href={`/workflows/${wf.slug}`}

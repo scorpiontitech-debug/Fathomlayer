@@ -120,3 +120,28 @@ export function itemListLd(
     })),
   };
 }
+
+export function articleLd(article: { title: string; description: string; url: string; datePublished: string; dateModified: string; authorName?: string; image?: string; isNews?: boolean }): JsonLdObject {
+  return {
+    "@context": "https://schema.org",
+    "@type": article.isNews ? "NewsArticle" : "Article",
+    headline: article.title,
+    description: article.description,
+    url: article.url,
+    ...(article.image ? { image: [article.image] } : {}),
+    datePublished: article.datePublished,
+    dateModified: article.dateModified,
+    author: {
+      "@type": "Person",
+      name: article.authorName || SITE_NAME,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/icon.svg`
+      }
+    }
+  };
+}

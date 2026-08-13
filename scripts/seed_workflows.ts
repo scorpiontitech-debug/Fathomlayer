@@ -65,7 +65,7 @@ const workflows = [
 async function seedWorkflows() {
   console.log("Seeding workflows...");
   for (const wf of workflows) {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("workflows")
       .upsert({
         slug: wf.slug,

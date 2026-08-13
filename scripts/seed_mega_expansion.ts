@@ -168,7 +168,7 @@ async function seedMegaExpansion() {
     // If the category doesn't exist, fallback to the first one available (for safety in testing)
     const categoryId = categoryMap[item.categorySlug] || categories[0].id;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("software")
       .upsert({
         slug: item.slug,

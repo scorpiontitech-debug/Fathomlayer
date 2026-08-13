@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { getPublishedPosts, getRecommendedPosts } from "@/lib/content-queries";
+import ZeroUIVoiceInterface from "@/components/ui/ZeroUIVoiceInterface";
 
 export const metadata: Metadata = {
   title: "News & Insights",
@@ -26,6 +27,9 @@ export default async function NewsFeedPage(props: { searchParams: Promise<{ tab?
 
   return (
     <div className="flex flex-col gap-16 pt-8 pb-32">
+      {/* Zero-UI Voice Interface (WebNN / Edge AI Phase 1) */}
+      <ZeroUIVoiceInterface />
+      
       <header className="flex flex-col gap-6">
         <h1 className="font-grotesk text-5xl font-bold tracking-tight text-strong md:text-7xl">
           Insights & <br /> Delta Signals

@@ -51,6 +51,7 @@
   --ease-smooth: var(--ease-smooth);
   --ease-silk: var(--ease-silk);
   --ease-out-expo: var(--ease-out-expo);
+  --animate-marquee: marquee 30s linear infinite;
 }
 
 /* ============================================================

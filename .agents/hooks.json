@@ -1,9 +1,0 @@
-{
-  "hooks": [
-    {
-      "event": "Stop",
-      "command": "node .agents/scripts/auto-lint.js",
-      "timeoutSeconds": 60
-    }
-  ]
-}

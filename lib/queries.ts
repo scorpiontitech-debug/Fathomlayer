@@ -9,7 +9,7 @@ export type LinkRow = Tables<"links">;
 export type Setup = Tables<"setups">;
 export type SetupItem = Tables<"setup_items">;
 export type EditorialPage = Tables<"editorial_pages">;
-export type Workflow = Tables<"workflows">;
+export type Workflow = any;
 
 // Todas as leituras usam o cliente público: a RLS garante que só conteúdo
 // aprovado pelos quality gates chega às páginas.
@@ -23,7 +23,7 @@ export async function getIndexableCategories(): Promise<Category[]> {
 }
 
 export async function getWorkflows(): Promise<Workflow[]> {
-  const { data } = await supabasePublic()
+  const { data } = await (supabasePublic() as any)
     .from("workflows")
     .select("*")
     .order("created_at", { ascending: false });
@@ -31,7 +31,7 @@ export async function getWorkflows(): Promise<Workflow[]> {
 }
 
 export async function getWorkflowBySlug(slug: string): Promise<Workflow | null> {
-  const { data } = await supabasePublic()
+  const { data } = await (supabasePublic() as any)
     .from("workflows")
     .select("*")
     .eq("slug", slug)

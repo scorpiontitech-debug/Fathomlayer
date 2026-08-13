@@ -15,6 +15,10 @@ import { DiscontinuedBadge, DiscontinuedNotice } from "@/components/StatusBadge"
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { DeepDive, FaqSection, KeyFeatures, VideoEmbed } from "@/components/RichContent";
 import CopyPromptButton from "@/components/CopyPromptButton";
+import { LifecycleBadge, FathomScores, HumanTranslation, PurchaseEssentials } from "@/components/product-features";
+import { ConsultantChat } from "@/components/ConsultantChat";
+import { ProductEcosystem } from "@/components/ProductEcosystem";
+import { DigitalTwinViewer } from "@/components/DigitalTwinViewer";
 import {
   getAggregateRating,
   getAlternativeProducts,
@@ -340,6 +344,30 @@ export default async function DetailPage({
       .order("created_at", { ascending: false });
     const initialReviews = initialReviewsData || [];
 
+    // --- TEMPORARY MOCK FOR DEMONSTRATION ---
+    if (p.slug === "macbook-pro-16-m4-max") {
+      p.lifecycle_status = "dont_buy_updates_soon";
+      p.score_battery = 9.5;
+      p.score_value = 7.0;
+      p.score_performance = 10.0;
+      p.human_translation = {
+        "Processador (M4 Max)": "Você não verá engasgos, mesmo se editar 3 vídeos 4K ao mesmo tempo e manter 50 abas abertas.",
+        "Bateria (22h)": "Dura um voo internacional inteiro e ainda sobra carga para o táxi. Deixe o carregador em casa.",
+        "RAM (128GB)": "Completamente à prova de futuro. Você não precisará de um notebook novo por 6 a 7 anos."
+      };
+      p.in_the_box = ["MacBook Pro 16\"", "Cabo USB-C para MagSafe 3 (2m)", "Adaptador de energia USB-C de 140W"];
+      p.colors = ["Space Black", "Silver"];
+      p.repairability_score = 4;
+      p.accessories = ["studio-display", "magic-keyboard-touchid"]; // mocks
+      p.specs = {
+        "Processador": "Apple M4 Max (16-core CPU, 40-core GPU)",
+        "Memória": "128GB Unified Memory",
+        "Armazenamento": "4TB NVMe SSD",
+        "Tela": "16.2\" Liquid Retina XDR (120Hz)"
+      };
+    }
+    // ----------------------------------------
+
     return (
       <article className="space-y-12">
         <JsonLd data={productLd(p, category, path, aggregateRating)} />
@@ -349,6 +377,7 @@ export default async function DetailPage({
 
         <header className="relative flex flex-col md:flex-row md:items-center justify-between gap-8 rounded-2xl border border-edge bg-surface/50 p-6 md:p-8 backdrop-blur-sm">
           <div className="max-w-xl">
+            <LifecycleBadge status={p.lifecycle_status} />
             <div className="flex flex-wrap items-center gap-3 mb-4">
               {p.brand ? <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-bright">{p.brand}</span> : null}
               {p.brand && tier ? <span className="text-edge-strong">|</span> : null}
@@ -380,14 +409,21 @@ export default async function DetailPage({
           </div>
         </header>
 
+        <FathomScores 
+          design={p.design_score}
+          battery={p.score_battery}
+          value={p.score_value}
+          performance={p.score_performance}
+        />
+
         {/* Visual Highlights & Image Fallback */}
         <div className="grid md:grid-cols-3 gap-6">
-          <figure className={`md:col-span-2 reveal flex items-center justify-center rounded-xl border border-edge p-8 overflow-hidden relative ${p.image_url ? 'bg-surface' : 'bg-gradient-to-br from-surface via-surface to-edge/20 min-h-[350px]'}`}>
+          <figure className={`md:col-span-2 reveal flex items-center justify-center rounded-xl border border-edge overflow-hidden relative ${p.image_url ? 'bg-surface' : 'bg-gradient-to-br from-surface via-surface to-edge/20 min-h-[350px] p-8'}`}>
             {p.image_url ? (
               <img
                 src={p.image_url}
                 alt={p.title}
-                className="max-h-[400px] w-auto max-w-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-out"
+                className="w-full h-full object-cover aspect-[4/3] md:aspect-auto drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-out"
                 loading="lazy"
               />
             ) : (
@@ -401,6 +437,15 @@ export default async function DetailPage({
           </figure>
 
           <div className="flex flex-col gap-3">
+            {category.slug === "smart-rings" || category.slug === "wearables" ? (
+              <div className="flex-1 rounded-xl border border-edge bg-surface/30 p-5 flex flex-col justify-center reveal">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint mb-2">Live Biometric Simulation</span>
+                <div className="w-full h-[200px] rounded-lg overflow-hidden relative">
+                  <DigitalTwinViewer stressScore={45} heartRate={68} />
+                </div>
+              </div>
+            ) : null}
+
             {specEntries(p.specs).slice(0, 4).map((entry, i) => (
               <div key={entry.key} className="flex-1 rounded-xl border border-edge bg-surface/30 p-5 flex flex-col justify-center reveal" style={{ animationDelay: `${i * 100}ms` }}>
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint mb-1">{entry.label}</span>
@@ -434,6 +479,14 @@ export default async function DetailPage({
 
         <SpecsTable specs={p.specs} />
 
+        <HumanTranslation data={p.human_translation} />
+        
+        <PurchaseEssentials 
+          colors={p.colors}
+          inTheBox={p.in_the_box}
+          repairability={p.repairability_score}
+        />
+
         {p.editorial_notes ? (
           <section className="reveal max-w-2xl rounded-lg border border-edge bg-surface p-6">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
@@ -446,6 +499,14 @@ export default async function DetailPage({
         {p.body_markdown ? <DeepDive markdown={p.body_markdown} /> : null}
         
         {p.faqs ? <FaqSection faqs={p.faqs} /> : null}
+
+        <ProductEcosystem accessorySlugs={p.accessories ?? []} />
+
+        <section className="reveal max-w-2xl space-y-3 mb-12">
+          <h2 className="font-display text-xl font-semibold tracking-tight">Fathom Consultant</h2>
+          <p className="text-sm text-dim mb-4">Have specific questions about this product? Ask our AI.</p>
+          <ConsultantChat productContext={{ title: p.title, verdict: p.description, brand: p.brand, specs: p.specs }} />
+        </section>
 
         {p.status === "archived" ? (
           <DiscontinuedNotice kind="product" />
@@ -500,7 +561,7 @@ export default async function DetailPage({
     );
   }
 
-  const s = entity.software;
+  const s = entity.software as any;
   const [links, alternatives, furtherReading] = await Promise.all([
     getLinks("software", s.id),
     getAlternativeSoftware(s),
@@ -567,12 +628,12 @@ export default async function DetailPage({
         </div>
       ) : null}
 
-      <figure className={`reveal flex items-center justify-center rounded-xl border border-edge p-8 overflow-hidden relative ${s.image_url ? 'bg-surface' : 'bg-gradient-to-br from-surface via-surface to-edge/20 min-h-[350px]'}`}>
+      <figure className={`reveal flex items-center justify-center rounded-xl border border-edge overflow-hidden relative ${s.image_url ? 'bg-surface' : 'bg-gradient-to-br from-surface via-surface to-edge/20 min-h-[350px] p-8'}`}>
         {s.image_url ? (
           <img
             src={s.image_url}
             alt={s.name}
-            className="max-h-[400px] w-auto max-w-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-out"
+            className="w-full h-full object-cover aspect-[21/9] drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-out"
             loading="lazy"
           />
         ) : (

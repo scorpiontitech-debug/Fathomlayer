@@ -198,7 +198,7 @@ async function main() {
 
   // 5. Inject Software
   for (const s of software) {
-    const { error } = await db.from("software").upsert({ ...s }, { onConflict: "slug" });
+    const { error } = await (db as any).from("software").upsert({ ...s }, { onConflict: "slug" });
     if (error) console.error(`Error inserting ${s.slug}:`, error.message);
     else console.log(`Injected software: ${s.slug}`);
   }

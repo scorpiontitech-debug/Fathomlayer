@@ -1,0 +1,75 @@
+{
+  "products": [
+    {
+      "slug": "keychron-k3-he",
+      "title": "Keychron K3 HE",
+      "brand": "Keychron"
+    },
+    {
+      "slug": "thinkpad-t14s-gen6-snapdragon",
+      "title": "ThinkPad T14s Gen 6 Snapdragon",
+      "brand": "Lenovo"
+    },
+    {
+      "slug": "whoop-4-0",
+      "title": "Whoop 4.0",
+      "brand": "Whoop"
+    },
+    {
+      "slug": "dell-xps-14-core-ultra",
+      "title": "Dell XPS 14 (Intel Core Ultra)",
+      "brand": "Dell"
+    },
+    {
+      "slug": "plaud-notepin",
+      "title": "Plaud NotePin",
+      "brand": null
+    },
+    {
+      "slug": "oura-ring-gen-3",
+      "title": "Oura Ring Gen 3",
+      "brand": "Oura"
+    },
+    {
+      "slug": "macbook-pro-16-m3-max",
+      "title": "Apple MacBook Pro 16\" (M3 Max)",
+      "brand": "Apple"
+    },
+    {
+      "slug": "ultrahuman-ring-air",
+      "title": "Ultrahuman Ring Air",
+      "brand": "Ultrahuman"
+    },
+    {
+      "slug": "samsung-galaxy-ring",
+      "title": "Samsung Galaxy Ring",
+      "brand": "Samsung"
+    },
+    {
+      "slug": "mac-mini-m4-pro-64gb",
+      "title": "Mac Mini M4 Pro (64GB)",
+      "brand": "Apple"
+    },
+    {
+      "slug": "threadripper-pro-dual-rtx-4090-build",
+      "title": "Threadripper Pro + Dual RTX 4090 Build",
+      "brand": null
+    },
+    {
+      "slug": "minisforum-ms-01",
+      "title": "Minisforum MS-01",
+      "brand": "Minisforum"
+    },
+    {
+      "slug": "gmktec-evo-x2-128gb",
+      "title": "GMKtec EVO-X2 (128GB)",
+      "brand": "GMKtec"
+    },
+    {
+      "slug": "ryzen-5-rtx-4060-ti-build",
+      "title": "Ryzen 5 + RTX 4060 Ti Build",
+      "brand": null
+    }
+  ],
+  "software": null
+}

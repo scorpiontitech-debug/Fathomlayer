@@ -34,8 +34,8 @@ export function SiteHeader({ showSetups = false }: { showSetups?: boolean }) {
   const secondaryNav = showSetups ? [...SECONDARY_NAV, { href: "/setups", label: "Setups" }] : SECONDARY_NAV;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-edge bg-[color-mix(in_srgb,var(--fl-bg)_86%,transparent)] backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-6 px-5">
+    <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl rounded-full border border-white/10 bg-[#131316]/60 backdrop-blur-3xl shadow-2xl transition-all duration-300">
+      <div className="flex h-14 items-center justify-between gap-6 px-6">
         <Link href="/" className="group flex items-center gap-2.5" aria-label="Fathom Layer — home" onClick={() => setIsMobileMenuOpen(false)}>
           <Image
             src="/fathom-layer-symbol.png"

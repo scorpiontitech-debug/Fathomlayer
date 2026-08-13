@@ -3,9 +3,6 @@ import Image from "next/image";
 import { cardSpecs, tierLabel } from "@/lib/spec-display";
 import type { Product, Software } from "@/lib/queries";
 
-// Product Card (design system seção 7): título, design_score, 1 spec de
-// destaque; o hover revela a 2ª spec — profundidade real, não troca de cor.
-
 // Marcador de item descontinuado na listagem (roadmap #21). Deliberadamente
 // discreto: informa sem transformar o card em alerta.
 function DiscontinuedTag() {
@@ -26,62 +23,69 @@ export function ProductCard({ product, href }: { product: Product; href: string 
       href={href}
       data-spot
       data-tilt
-      className="spot-card glow-hover tilt group flex flex-col justify-between rounded-lg border border-edge bg-surface p-5 hover:border-edge-strong"
+      className="spot-card glow-hover tilt group flex flex-col rounded-xl border border-edge bg-surface overflow-hidden hover:border-edge-strong transition-all duration-300"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="font-display font-semibold leading-snug">{product.title}</h3>
-          {product.brand ? <p className="mt-0.5 text-sm text-dim">{product.brand}</p> : null}
-          {product.status === "archived" ? <DiscontinuedTag /> : null}
-        </div>
-        {product.design_score !== null ? (
-          <div className="shrink-0 text-right leading-none">
-            <span className="font-mono text-lg tabular-nums text-accent-bright">
-              {product.design_score.toFixed(1)}
-            </span>
-            <span className="font-mono text-xs text-faint">/10</span>
-          </div>
-        ) : null}
-      </div>
-
+      {/* Hero Image Stage */}
       {product.image_url ? (
-        <div className="mt-4 flex h-32 items-center justify-center p-2">
+        <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-edge">
           <Image
             src={product.image_url}
             alt={product.title}
-            width={400}
-            height={400}
-            className="max-h-full w-auto object-contain mix-blend-screen"
+            fill
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         </div>
-      ) : null}
+      ) : (
+        <div className="aspect-[4/3] w-full border-b border-edge bg-edge/10 flex items-center justify-center">
+          <span className="text-faint font-mono text-xs uppercase tracking-widest">No Image</span>
+        </div>
+      )}
 
-      <div className="mt-6 space-y-2">
-        {primary ? (
-          <div className="flex items-baseline justify-between gap-3 text-sm">
-            <span className="text-dim">{primary.label}</span>
-            <span className="font-mono tabular-nums">{primary.value}</span>
+      {/* Content */}
+      <div className="flex flex-1 flex-col justify-between p-6">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="font-display font-semibold leading-snug">{product.title}</h3>
+            {product.brand ? <p className="mt-1 text-sm text-dim">{product.brand}</p> : null}
+            {product.status === "archived" ? <DiscontinuedTag /> : null}
           </div>
-        ) : null}
-
-        {/* Camada dupla: tier visível; hover desliza a 2ª spec para cima */}
-        <div className="relative h-5 overflow-hidden text-sm">
-          <div className="absolute inset-x-0 transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-            <span className="font-mono text-xs uppercase tracking-[0.14em] text-faint">
-              {tier ?? "—"}
-            </span>
-          </div>
-          <div className="absolute inset-x-0 flex translate-y-5 items-baseline justify-between gap-3 transition-transform duration-300 ease-flow group-hover:translate-y-0">
-            {secondary ? (
-              <>
-                <span className="text-dim">{secondary.label}</span>
-                <span className="font-mono tabular-nums">{secondary.value}</span>
-              </>
-            ) : (
-              <span className="font-mono text-xs uppercase tracking-[0.14em] text-accent-bright">
-                View →
+          {product.design_score !== null ? (
+            <div className="shrink-0 text-right leading-none">
+              <span className="font-mono text-lg tabular-nums text-accent-bright">
+                {product.design_score.toFixed(1)}
               </span>
-            )}
+              <span className="font-mono text-[10px] text-faint block mt-1 uppercase tracking-widest">Score</span>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-8 space-y-3 pt-4 border-t border-edge/50">
+          {primary ? (
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="text-dim">{primary.label}</span>
+              <span className="font-mono tabular-nums text-ink">{primary.value}</span>
+            </div>
+          ) : null}
+
+          {/* Camada dupla: tier visível; hover desliza a 2ª spec para cima */}
+          <div className="relative h-5 overflow-hidden text-sm">
+            <div className="absolute inset-x-0 transition-transform duration-300 ease-flow group-hover:-translate-y-5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                {tier ?? "—"}
+              </span>
+            </div>
+            <div className="absolute inset-x-0 flex translate-y-5 items-baseline justify-between gap-3 transition-transform duration-300 ease-flow group-hover:translate-y-0">
+              {secondary ? (
+                <>
+                  <span className="text-dim">{secondary.label}</span>
+                  <span className="font-mono tabular-nums text-ink">{secondary.value}</span>
+                </>
+              ) : (
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-accent-bright">
+                  View Details →
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -95,41 +99,47 @@ export function SoftwareCard({ software, href }: { software: Software; href: str
       href={href}
       data-spot
       data-tilt
-      className="spot-card glow-hover tilt group flex flex-col justify-between rounded-lg border border-edge bg-surface p-5 hover:border-edge-strong"
+      className="spot-card glow-hover tilt group flex flex-col rounded-xl border border-edge bg-surface overflow-hidden hover:border-edge-strong transition-all duration-300"
     >
-      <div>
-        <h3 className="font-display font-semibold leading-snug">{software.name}</h3>
-        {software.status === "archived" ? <DiscontinuedTag /> : null}
-        {software.description ? (
-          <p className="mt-1 line-clamp-2 text-sm text-dim">{software.description}</p>
-        ) : null}
-      </div>
-
+      {/* Hero Image Stage */}
       {software.image_url ? (
-        <div className="mt-4 flex h-32 items-center justify-center p-2">
+        <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-edge">
           <Image
             src={software.image_url}
             alt={software.name}
-            width={400}
-            height={400}
-            className="max-h-full w-auto object-contain mix-blend-screen"
+            fill
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         </div>
-      ) : null}
+      ) : (
+        <div className="aspect-[4/3] w-full border-b border-edge bg-edge/10 flex items-center justify-center">
+          <span className="text-faint font-mono text-xs uppercase tracking-widest">No Image</span>
+        </div>
+      )}
 
-      <div className="relative mt-6 h-5 overflow-hidden text-sm">
-        <div className="absolute inset-x-0 flex items-baseline justify-between gap-3 transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-faint">
-            {software.pricing_model ?? "—"}
-          </span>
-          {software.price_text ? (
-            <span className="font-mono tabular-nums text-dim">{software.price_text}</span>
+      <div className="flex flex-1 flex-col justify-between p-6">
+        <div>
+          <h3 className="font-display font-semibold leading-snug text-lg">{software.name}</h3>
+          {software.status === "archived" ? <DiscontinuedTag /> : null}
+          {software.description ? (
+            <p className="mt-2 line-clamp-2 text-sm text-dim leading-relaxed">{software.description}</p>
           ) : null}
         </div>
-        <div className="absolute inset-x-0 translate-y-5 transition-transform duration-300 ease-flow group-hover:translate-y-0">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-accent-bright">
-            View →
-          </span>
+
+        <div className="relative mt-8 pt-4 border-t border-edge/50 h-9 overflow-hidden text-sm">
+          <div className="absolute inset-x-0 flex items-baseline justify-between gap-3 transition-transform duration-300 ease-flow group-hover:-translate-y-9">
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+              {software.pricing_model ?? "—"}
+            </span>
+            {software.price_text ? (
+              <span className="font-mono tabular-nums text-dim">{software.price_text}</span>
+            ) : null}
+          </div>
+          <div className="absolute inset-x-0 translate-y-9 transition-transform duration-300 ease-flow group-hover:translate-y-0">
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-accent-bright">
+              View Details →
+            </span>
+          </div>
         </div>
       </div>
     </Link>

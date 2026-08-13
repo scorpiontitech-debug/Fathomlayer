@@ -2,10 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { HeroCanvas } from "@/components/three/HeroCanvas";
-import { getEditorialPages, getIndexableCategories, getPublishedSetups } from "@/lib/queries";
+import { getEditorialPages, getIndexableCategories, getPublishedSetups, getTrendingItems } from "@/lib/queries";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import { PILLARS, PILLAR_KEYS } from "@/lib/taxonomy";
 
+import { OmniSearch } from "@/components/OmniSearch";
+import { MarketTicker } from "@/components/MarketTicker";
+import { QuickCompare } from "@/components/QuickCompare";
+import { DataRing } from "@/components/DataRing";
+import { ScatterPlot } from "@/components/ScatterPlot";
+import { LiveReviews } from "@/components/LiveReviews";
+
+// ... [existing imports]
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
@@ -45,12 +53,13 @@ const MARQUEE = [
 ];
 
 export default async function HomePage() {
-  const [categories, glossary, guides, launches, setups] = await Promise.all([
+  const [categories, glossary, guides, launches, setups, trendingItems] = await Promise.all([
     getIndexableCategories(),
     getEditorialPages("glossary"),
     getEditorialPages("guide"),
     getEditorialPages("launch"),
     getPublishedSetups(),
+    getTrendingItems(),
   ]);
   const indexedItems = categories.reduce((n, c) => n + c.active_listing_count, 0);
   const referenceEntries = glossary.length + guides.length + launches.length;
@@ -70,7 +79,7 @@ export default async function HomePage() {
         {/* z-10 explícito: sem ele o canvas pintava por cima da headline e o
             texto ficava ilegível atrás das partículas. Ordem no HTML não
             bastou — a camada precisa ser declarada. */}
-        <div className="rise-group kinetic-scroll relative z-10 max-w-4xl">
+        <div className="rise-group kinetic-scroll relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center">
           <p className="font-mono text-xs uppercase tracking-[0.24em] text-dim">
             Independent technology index
           </p>
@@ -81,31 +90,13 @@ export default async function HomePage() {
             <span className="text-outline">verified</span>{" "}
             <span className="text-accent-bright">numbers.</span>
           </h1>
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-dim">
+          <p className="mt-8 max-w-xl mx-auto text-center text-lg leading-relaxed text-dim">
             Hardware, software and AI — human-reviewed, design-scored, documented with data
             from primary sources. Never a paid ranking.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-5">
-            <Link
-              href="/compute"
-              data-magnetic
-              className="magnetic group inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 font-medium text-white hover:bg-accent-bright hover:shadow-[0_0_38px_rgba(0,82,255,0.45)] active:scale-[0.98]"
-            >
-              Browse the index
-              <span
-                aria-hidden
-                className="transition-transform duration-200 ease-flow group-hover:translate-x-1"
-              >
-                →
-              </span>
-            </Link>
-            <Link
-              href="/methodology"
-              className="nav-link text-sm text-dim transition-colors hover:text-ink"
-            >
-              How scoring works
-            </Link>
-          </div>
+          
+          <OmniSearch />
+          <MarketTicker />
         </div>
 
         {/* Régua de dados: números reais do banco, no rodapé do hero */}
@@ -131,6 +122,8 @@ export default async function HomePage() {
           ))}
         </dl>
       </section>
+
+      <QuickCompare />
 
       {/* MARQUEE — vocabulário do índice em movimento contínuo */}
       <section aria-hidden className="marquee -mx-5 border-y border-edge py-5">
@@ -177,6 +170,56 @@ export default async function HomePage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          
+          {/* O NOVO FEED DE TRENDING HARDWARE (Reator 3) */}
+          <div className="col-span-full mb-4 rounded-xl border border-white/10 bg-black/40 backdrop-blur-3xl overflow-hidden shadow-2xl">
+            <div className="border-b border-white/5 bg-white/5 px-6 py-4 flex items-center justify-between">
+              <h3 className="font-display font-semibold text-lg text-white flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-bright"></span>
+                </span>
+                Trending Hardware
+              </h3>
+              <div className="flex gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-accent-bright bg-accent/10 px-2 py-1 rounded">Last 24h</span>
+              </div>
+            </div>
+            
+            <div className="divide-y divide-white/5">
+              {(trendingItems.filter(Boolean) as any[]).slice(0, 5).map((item, idx) => (
+                <Link
+                  key={item.id}
+                  href={`/${item.type === 'software' ? 'software' : 'products'}/${item.slug}`}
+                  data-magnetic
+                  className="magnetic group flex items-center justify-between px-6 py-4 transition-colors hover:bg-white/5"
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="font-mono text-xs text-faint">0{idx + 1}</span>
+                    <span className="font-display font-medium text-ink group-hover:text-accent-bright transition-colors">{item.title}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-6">
+                    {/* Data Ring Animation for Score */}
+                    {item.design_score && (
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-xs text-dim">Design Score</span>
+                        <DataRing score={item.design_score} size={36} strokeWidth={3} />
+                      </div>
+                    )}
+                    <span className="text-dim transition-transform duration-200 group-hover:translate-x-1">→</span>
+                  </div>
+                </Link>
+              ))}
+              
+              {trendingItems.length === 0 && (
+                <div className="px-6 py-8 text-center text-sm text-dim font-mono">
+                  No trending data available yet.
+                </div>
+              )}
+            </div>
+          </div>
+
           {PILLAR_KEYS.map((key, i) => {
             const pillar = PILLARS[key];
             const pillarCategories = categories.filter((c) => c.pillar === key);
@@ -187,7 +230,7 @@ export default async function HomePage() {
                 href={`/${pillar.slug}`}
                 data-spot
                 data-tilt
-                className="spot-card glow-hover tilt group relative flex min-h-[250px] flex-col justify-between rounded-lg border border-edge bg-surface p-6 hover:border-edge-strong lg:col-span-2"
+                className="spot-card glow-hover tilt group relative flex min-h-[250px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-2"
               >
                 <span className="ghost-numeral">0{i + 1}</span>
                 <div className="relative">
@@ -234,7 +277,7 @@ export default async function HomePage() {
             href={setups.length > 0 ? "/setups" : "/guides"}
             data-spot
             data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge bg-surface p-6 hover:border-edge-strong lg:col-span-2"
+            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-2"
           >
             <span className="ghost-numeral">04</span>
             <div className="relative">
@@ -263,7 +306,7 @@ export default async function HomePage() {
             href="/calculator"
             data-spot
             data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge bg-surface p-6 hover:border-accent lg:col-span-2"
+            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-accent lg:col-span-2"
           >
             <span className="ghost-numeral">05</span>
             <div className="relative">
@@ -290,7 +333,7 @@ export default async function HomePage() {
             href="/glossary"
             data-spot
             data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge bg-surface p-6 hover:border-edge-strong lg:col-span-3"
+            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-3"
           >
             <span className="ghost-numeral">06</span>
             <div className="relative">
@@ -318,7 +361,7 @@ export default async function HomePage() {
             href="/methodology"
             data-spot
             data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge bg-surface p-6 hover:border-edge-strong lg:col-span-3"
+            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-3"
           >
             <span className="ghost-numeral">07</span>
             <div className="relative">
@@ -341,6 +384,10 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      <ScatterPlot />
+
+      <LiveReviews />
 
       {/* MANIFESTO — os gates como afirmação tipográfica */}
       <section className="reveal relative -mx-5 overflow-hidden border-y border-edge px-5 py-20">

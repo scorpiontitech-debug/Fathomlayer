@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { renderMarkdown } from "@/lib/markdown";
 import type { EditorialPage } from "@/lib/queries";
+import { articleLd, SITE_URL } from "@/lib/seo";
 
 // Selo de confiança do radar (design system §7): dessaturado, nunca alarme.
 const CONFIDENCE_STYLE: Record<string, string> = {
@@ -110,8 +111,22 @@ export function EditorialArticle({
   listPath: string;
   related?: EditorialPage[];
 }) {
+  const jsonLd = articleLd({
+    title: page.title,
+    description: page.body_markdown.replace(/[#*_`>[\]]/g, "").slice(0, 160),
+    url: `${SITE_URL}${listPath}/${page.slug}`,
+    datePublished: page.created_at,
+    dateModified: page.updated_at,
+    authorName: "Fathom Layer Editorial Team",
+    isNews: page.content_type === "launch",
+  });
+
   return (
     <article className="space-y-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav aria-label="Breadcrumb" className="font-mono text-xs uppercase tracking-[0.14em]">
         <Link href={listPath} className="text-dim transition-colors hover:text-ink">
           {listLabel}

@@ -4,6 +4,11 @@ import { MotionLayer } from "@/components/motion/MotionLayer";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { JsonLd } from "@/components/JsonLd";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { Preloader } from "@/components/Preloader";
+import { CustomCursor } from "@/components/CustomCursor";
 import { getEditorialPages, getPublishedSetups } from "@/lib/queries";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import "./globals.css";
@@ -35,11 +40,27 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://fathomlayer.com"),
   title: {
-    default: "Fathom Layer — independent technology index",
+    default: "Fathom Layer — The Global Phygital & Agentic AI Platform",
     template: "%s — Fathom Layer",
   },
   description:
-    "An independent technology index: hardware, software and AI evaluated with verified data and in-house editorial criteria.",
+    "An advanced cybernetic ecosystem bridging physical and digital worlds through Agentic AI (Mastra), WebNN Edge computing, and IoT Matter Digital Twins.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Fathom Layer — The Global Phygital & Agentic AI Platform",
+    description: "Bridging physical and digital worlds with Agentic AI and Digital Twins.",
+    url: "https://fathomlayer.com",
+    siteName: "Fathom Layer",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fathom Layer — The Global Phygital & Agentic AI Platform",
+    description: "Bridging physical and digital worlds with Agentic AI and Digital Twins.",
+  },
 };
 
 // Navegação consciente do acervo: seção sem nada publicado não vira item de
@@ -55,20 +76,30 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${grotesk.variable} ${body.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col antialiased">
-        <a
-          href="#content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-white"
-        >
-          Skip to content
-        </a>
-        <JsonLd data={organizationLd()} />
-        <JsonLd data={websiteLd()} />
-        <MotionLayer />
-        <SiteHeader showSetups={setups.length > 0} />
-        <main id="content" className="mx-auto w-full max-w-6xl flex-1 px-5 pb-24 pt-10">
-          {children}
-        </main>
-        <SiteFooter showRadar={launches.length > 0} />
+        <SmoothScroll>
+          <Preloader />
+          <a
+            href="#content"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-white"
+          >
+            Skip to content
+          </a>
+          <JsonLd data={organizationLd()} />
+          <JsonLd data={websiteLd()} />
+          <MotionLayer />
+          <div className="relative z-10 bg-[#0a0a0b] pb-24 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <SiteHeader showSetups={setups.length > 0} />
+            <main id="content" className="mx-auto w-full max-w-6xl flex-1 px-5 pt-24">
+              {children}
+            </main>
+          </div>
+          <div className="sticky bottom-0 z-0">
+            <SiteFooter showRadar={launches.length > 0} />
+          </div>
+          <CustomCursor />
+        </SmoothScroll>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

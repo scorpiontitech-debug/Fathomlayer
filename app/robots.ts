@@ -8,10 +8,11 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
+        allow: "/",
         disallow: ["/out/", "/admin/"],
       },
     ],
-    sitemap: ["core", "categories", "products", "software", "editorial"].map(
+    sitemap: ["core", "categories", "products", "software", "editorial", "news"].map(
       (id) => `${SITE_URL}/sitemap/${id}.xml`
     ),
   };

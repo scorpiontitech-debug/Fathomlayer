@@ -26,7 +26,7 @@ export async function GET() {
   // Process Software
   if (softwareRes.data && softwareRes.data.length > 0) {
     body += `## Software & AI Models\n\n`;
-    for (const s of softwareRes.data) {
+    for (const s of softwareRes.data as any[]) {
       const cat = categoryMap.get(s.category_id);
       if (!cat) continue;
       const pillar = pillarByKey(cat.pillar);
@@ -72,6 +72,37 @@ export async function GET() {
       if (p.pros && p.pros.length > 0) body += `- **Pros**: ${p.pros.join(", ")}\n`;
       if (p.cons && p.cons.length > 0) body += `- **Cons**: ${p.cons.join(", ")}\n`;
       
+      body += `\n`;
+    }
+  }
+
+  // Process Editorial Pages (Guides, Glossary, Radar)
+  const editorialRes = await client.from("editorial_pages").select("*").eq("status", "published");
+  if (editorialRes.data && editorialRes.data.length > 0) {
+    body += `## Editorial Guides & Glossary\n\n`;
+    for (const ed of editorialRes.data as any[]) {
+      let prefix = 'guides';
+      if (ed.content_type === 'glossary') prefix = 'glossary';
+      if (ed.content_type === 'launch') prefix = 'radar';
+      
+      body += `### [${ed.title}](${SITE_URL}/${prefix}/${ed.slug})\n`;
+      body += `- **Type**: ${ed.content_type}\n`;
+      const desc = (ed.body_markdown || "").replace(/[#*_`>[\]]/g, "").slice(0, 160).replace(/\n/g, " ").trim();
+      body += `- **Description**: ${desc || "N/A"}...\n`;
+      if (ed.tags && ed.tags.length > 0) body += `- **Tags**: ${ed.tags.join(", ")}\n`;
+      // Don't dump entire markdown body to avoid blowing up context window, just descriptions and metadata
+      body += `\n`;
+    }
+  }
+
+  // Process News Posts (Agentic AI / Fathom Layer updates)
+  const newsRes = await client.from("content_posts" as any).select("*").eq("status", "published");
+  if (newsRes.data && newsRes.data.length > 0) {
+    body += `## Latest Intelligence & Updates\n\n`;
+    for (const post of newsRes.data as any[]) {
+      body += `### [${post.title}](${SITE_URL}/news/${post.slug})\n`;
+      body += `- **Published**: ${post.published_at}\n`;
+      body += `- **Excerpt**: ${post.excerpt || "N/A"}\n`;
       body += `\n`;
     }
   }
