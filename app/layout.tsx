@@ -45,9 +45,6 @@ export const metadata: Metadata = {
   },
   description:
     "An advanced cybernetic ecosystem bridging physical and digital worlds through Agentic AI (Mastra), WebNN Edge computing, and IoT Matter Digital Twins.",
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     title: "Fathom Layer — The Global Phygital & Agentic AI Platform",
     description: "Bridging physical and digital worlds with Agentic AI and Digital Twins.",
@@ -60,6 +57,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Fathom Layer — The Global Phygital & Agentic AI Platform",
     description: "Bridging physical and digital worlds with Agentic AI and Digital Twins.",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "add-your-google-site-verification-code-here",
   },
 };
 
