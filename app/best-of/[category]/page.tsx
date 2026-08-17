@@ -3,6 +3,7 @@ import { getBestOfCategory } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { DesignScore } from "@/components/DesignScore";
+import { pillarByKey } from "@/lib/taxonomy";
 
 export default async function BestOfPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
@@ -58,12 +59,18 @@ export default async function BestOfPage({ params }: { params: Promise<{ categor
               {item.description || "No description provided."}
             </p>
 
-            <Link
-              href={`/hardware/${data.category.slug}/${item.slug}`} // Assuming hardware for MVP, in real app resolve pillar
-              className="inline-flex items-center justify-center rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-surface transition hover:bg-ink/90"
-            >
-              Read Full Review & Specs
-            </Link>
+            {(() => {
+              const pillar = pillarByKey(data.category.pillar);
+              const pillarSlug = pillar ? pillar.slug : "hardware";
+              return (
+                <Link
+                  href={`/${pillarSlug}/${data.category.slug}/${item.slug}`}
+                  className="inline-flex items-center justify-center rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-surface transition hover:bg-ink/90"
+                >
+                  Read Full Review & Specs
+                </Link>
+              );
+            })()}
           </article>
         ))}
       </section>

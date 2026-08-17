@@ -122,7 +122,7 @@ export async function getBestOfCategory(categorySlug: string, limit: number = 5)
   // First, find the category
   const { data: category } = await supabasePublic()
     .from("categories")
-    .select("id, name, slug")
+    .select("id, name, slug, pillar")
     .eq("slug", categorySlug)
     .single();
 

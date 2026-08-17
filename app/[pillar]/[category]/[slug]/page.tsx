@@ -344,30 +344,6 @@ export default async function DetailPage({
       .order("created_at", { ascending: false });
     const initialReviews = initialReviewsData || [];
 
-    // --- TEMPORARY MOCK FOR DEMONSTRATION ---
-    if (p.slug === "macbook-pro-16-m4-max") {
-      p.lifecycle_status = "dont_buy_updates_soon";
-      p.score_battery = 9.5;
-      p.score_value = 7.0;
-      p.score_performance = 10.0;
-      p.human_translation = {
-        "Processador (M4 Max)": "Você não verá engasgos, mesmo se editar 3 vídeos 4K ao mesmo tempo e manter 50 abas abertas.",
-        "Bateria (22h)": "Dura um voo internacional inteiro e ainda sobra carga para o táxi. Deixe o carregador em casa.",
-        "RAM (128GB)": "Completamente à prova de futuro. Você não precisará de um notebook novo por 6 a 7 anos."
-      };
-      p.in_the_box = ["MacBook Pro 16\"", "Cabo USB-C para MagSafe 3 (2m)", "Adaptador de energia USB-C de 140W"];
-      p.colors = ["Space Black", "Silver"];
-      p.repairability_score = 4;
-      p.accessories = ["studio-display", "magic-keyboard-touchid"]; // mocks
-      p.specs = {
-        "Processador": "Apple M4 Max (16-core CPU, 40-core GPU)",
-        "Memória": "128GB Unified Memory",
-        "Armazenamento": "4TB NVMe SSD",
-        "Tela": "16.2\" Liquid Retina XDR (120Hz)"
-      };
-    }
-    // ----------------------------------------
-
     return (
       <article className="space-y-12">
         <JsonLd data={productLd(p, category, path, aggregateRating)} />
