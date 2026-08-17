@@ -42,14 +42,15 @@ export function KeyFeatures({ features }: { features: string[] }) {
   );
 }
 
-export function DeepDive({ markdown }: { markdown: string }) {
+export async function DeepDive({ markdown }: { markdown: string }) {
   if (!markdown) return null;
+  const htmlContent = await renderMarkdown(markdown);
   return (
     <section className="reveal max-w-2xl border-t border-edge pt-8">
       <h2 className="font-display text-2xl font-semibold tracking-tight">In-Depth Review</h2>
       <div
         className="prose-nl mt-6 leading-relaxed [&_a]:text-accent-bright [&_a]:underline-offset-4 hover:[&_a]:underline [&_code]:font-mono [&_code]:text-sm [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mt-6 [&_h3]:font-display [&_h3]:font-semibold [&_li]:my-1 [&_p]:my-4 [&_p]:text-dim [&_strong]:text-ink [&_table]:w-full [&_table]:border-collapse [&_td]:border-b [&_td]:border-edge [&_td]:py-2 [&_th]:border-b [&_th]:border-edge-strong [&_th]:py-2 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-dim"
-        dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
     </section>
   );

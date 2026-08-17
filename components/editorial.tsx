@@ -100,7 +100,7 @@ const EDITORIAL_LABEL: Record<string, string> = {
   launch: "Radar",
 };
 
-export function EditorialArticle({
+export async function EditorialArticle({
   page,
   listLabel,
   listPath,
@@ -120,6 +120,8 @@ export function EditorialArticle({
     authorName: "Fathom Layer Editorial Team",
     isNews: page.content_type === "launch",
   });
+
+  const htmlContent = await renderMarkdown(page.body_markdown);
 
   return (
     <article className="space-y-8">
@@ -144,7 +146,7 @@ export function EditorialArticle({
 
       <div
         className="prose-nl max-w-2xl leading-relaxed [&_a]:text-accent-bright [&_a]:underline-offset-4 hover:[&_a]:underline [&_code]:font-mono [&_code]:text-sm [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mt-6 [&_h3]:font-display [&_h3]:font-semibold [&_li]:my-1 [&_p]:my-4 [&_p]:text-dim [&_strong]:text-ink [&_table]:w-full [&_table]:border-collapse [&_td]:border-b [&_td]:border-edge [&_td]:py-2 [&_th]:border-b [&_th]:border-edge-strong [&_th]:py-2 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-dim"
-        dangerouslySetInnerHTML={{ __html: renderMarkdown(page.body_markdown) }}
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
 
       {related.length > 0 ? (

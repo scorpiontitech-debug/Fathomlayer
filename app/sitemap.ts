@@ -20,6 +20,7 @@ export async function generateSitemaps() {
     { id: "software" },
     { id: "editorial" },
     { id: "news" },
+    { id: "compare" },
   ];
 }
 
@@ -127,6 +128,40 @@ export default async function sitemap({
     return (data ?? []).map((post: any) => 
       entry(`/news/${post.slug}`, post.updated_at, "weekly", 0.8)
     );
+  }
+
+  if (id === "compare") {
+    const [swRes, hwRes] = await Promise.all([
+      supabasePublic().from("software").select("slug, category_id, updated_at"),
+      supabasePublic().from("products").select("slug, category_id, updated_at")
+    ]);
+    
+    const items = [...(swRes.data ?? []), ...(hwRes.data ?? [])];
+    
+    // Group by category to only compare items within the same category
+    const byCategory = items.reduce((acc, item) => {
+      if (!acc[item.category_id]) acc[item.category_id] = [];
+      acc[item.category_id].push(item);
+      return acc;
+    }, {} as Record<string, typeof items>);
+
+    const compareEntries: MetadataRoute.Sitemap = [];
+    
+    for (const catId in byCategory) {
+      const group = byCategory[catId];
+      // Generate pairs A-vs-B
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          const itemA = group[i];
+          const itemB = group[j];
+          // Determine the latest updated_at between the two
+          const recentUpdate = new Date(itemA.updated_at) > new Date(itemB.updated_at) ? itemA.updated_at : itemB.updated_at;
+          compareEntries.push(entry(`/compare/${itemA.slug}-vs-${itemB.slug}`, recentUpdate, "monthly", 0.7));
+        }
+      }
+    }
+    
+    return compareEntries;
   }
 
   return [];
