@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/content-queries";
 import { RichTextRenderer } from "@/components/content/RichTextRenderer";
+import Image from "next/image";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -90,7 +91,9 @@ export default async function NewsArticlePage({ params }: Props) {
         {/* E-E-A-T Author Block */}
         <div className="flex items-center gap-4 mt-4 py-4 border-y border-edge">
           {post.author?.avatar_url ? (
-            <img src={post.author.avatar_url} alt={post.author.name} className="w-12 h-12 rounded-full object-cover bg-edge" />
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-edge relative shrink-0">
+              <Image src={post.author.avatar_url} alt={post.author.name} fill sizes="48px" className="object-cover" />
+            </div>
           ) : (
             <div className="w-12 h-12 rounded-full bg-edge" />
           )}
@@ -111,7 +114,7 @@ export default async function NewsArticlePage({ params }: Props) {
 
       {post.cover_image_url && (
         <figure className="w-full aspect-[21/9] rounded-2xl overflow-hidden bg-edge relative" data-tilt>
-          <img src={post.cover_image_url} alt={post.title} className="w-full h-full object-cover" />
+          <Image src={post.cover_image_url} alt={post.title} fill sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
         </figure>
       )}
 

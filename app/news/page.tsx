@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Metadata } from "next";
 import Link from "next/link";
 import { getPublishedPosts, getRecommendedPosts } from "@/lib/content-queries";
@@ -92,7 +93,9 @@ export default async function NewsFeedPage(props: { searchParams: Promise<{ tab?
 
             <div className="mt-auto pt-6 flex items-center gap-3">
               {post.author?.avatar_url ? (
-                <img src={post.author.avatar_url} alt={post.author.name} className="w-8 h-8 rounded-full bg-edge object-cover" />
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-edge relative shrink-0">
+                  <Image src={post.author.avatar_url} alt={post.author.name} fill sizes="32px" className="object-cover" />
+                </div>
               ) : (
                 <div className="w-8 h-8 rounded-full bg-edge" />
               )}

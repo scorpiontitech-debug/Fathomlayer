@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getProductBySlug } from "@/lib/queries";
 import { pillarByKey } from "@/lib/taxonomy";
@@ -69,9 +70,9 @@ export async function ProductEcosystem({ accessorySlugs }: { accessorySlugs: str
               href={`/${item.pillarSlug}/${item.categorySlug}/${item.slug}`}
               className="group flex gap-4 rounded-lg border border-edge bg-surface p-4 hover:border-edge-strong transition-colors"
             >
-              <div className="w-16 h-16 shrink-0 bg-surface rounded-md border border-edge overflow-hidden">
+              <div className="w-16 h-16 shrink-0 bg-surface rounded-md border border-edge overflow-hidden relative">
                 {item.image_url ? (
-                  <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+                  <Image src={item.image_url} alt={item.title} fill sizes="64px" className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center font-mono text-[8px] uppercase text-faint">No Img</div>
                 )}

@@ -256,7 +256,7 @@ async function seedMegaExpansion() {
       continue;
     }
 
-    const { error } = await supabase.from("editorial_pages").insert(article);
+    const { error } = await supabase.from("editorial_pages").insert(article as any);
     if (error) {
       console.error(`[ERROR] ${article.slug}: `, error.message);
     } else {

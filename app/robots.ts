@@ -12,7 +12,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/out/", "/admin/"],
       },
     ],
-    sitemap: ["core", "categories", "products", "software", "editorial", "news"].map(
+    sitemap: ["core", "categories", "products", "software", "editorial", "news", "compare"].map(
       (id) => `${SITE_URL}/sitemap/${id}.xml`
     ),
   };

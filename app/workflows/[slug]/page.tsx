@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -87,7 +88,9 @@ export default async function WorkflowDetailPage({ params }: { params: Promise<{
                     <Link href={`/software/ai/${step.software.slug}`} className="group flex items-center justify-between p-4 rounded-lg bg-subtle/50 hover:bg-subtle border border-transparent hover:border-edge transition-all">
                       <div className="flex items-center">
                         {step.software.image_url ? (
-                          <img src={step.software.image_url} alt={step.software.name} className="w-10 h-10 rounded-md object-cover mr-4" />
+                          <div className="w-10 h-10 shrink-0 rounded-md overflow-hidden relative mr-4">
+                            <Image src={step.software.image_url} alt={step.software.name} fill sizes="40px" className="object-cover" />
+                          </div>
                         ) : (
                           <div className="w-10 h-10 rounded-md bg-edge flex items-center justify-center mr-4 font-bold text-faint">
                             {step.software.name.charAt(0)}

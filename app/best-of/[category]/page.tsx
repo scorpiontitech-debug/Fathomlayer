@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getBestOfCategory } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -48,8 +49,8 @@ export default async function BestOfPage({ params }: { params: Promise<{ categor
             </div>
 
             {item.image_url && (
-              <div className="mb-6 overflow-hidden rounded-lg border border-edge">
-                <img src={item.image_url} alt={item.title} className="w-full object-cover" />
+              <div className="mb-6 overflow-hidden rounded-lg border border-edge relative aspect-video">
+                <Image src={item.image_url} alt={item.title} fill sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
               </div>
             )}
 
