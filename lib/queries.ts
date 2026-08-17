@@ -118,6 +118,37 @@ export async function getProductById(id: string): Promise<Product | null> {
 
 
 
+export async function getLatestNews(limit: number = 4) {
+  const { data } = await (supabasePublic() as any)
+    .from("content_posts")
+    .select("id, title, slug, cover_image, excerpt, published_at")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
+export async function getTopRankedProducts(limit: number = 6) {
+  const { data } = await supabasePublic()
+    .from("products")
+    .select("id, title, slug, design_score, image_url, description, category_id, categories(name, slug, pillar)")
+    .eq("status", "published")
+    .not("design_score", "is", null)
+    .order("design_score", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
+export async function getRecentEditorials(limit: number = 4) {
+  const { data } = await supabasePublic()
+    .from("editorial_pages")
+    .select("id, title, slug, content_type, published_at, created_at, body_markdown")
+    .in("content_type", ["guide", "launch"])
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
 export async function getBestOfCategory(categorySlug: string, limit: number = 5) {
   // First, find the category
   const { data: category } = await supabasePublic()

@@ -3,6 +3,20 @@ import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/content-queries";
 import { RichTextRenderer } from "@/components/content/RichTextRenderer";
 import Image from "next/image";
+import { supabasePublic } from "@/lib/supabase/server";
+import { SITE_URL, articleLd } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const { data } = await supabasePublic()
+    .from("content_posts" as any)
+    .select("slug")
+    .eq("status", "published");
+  return (data ?? []).map((post: any) => ({ slug: post.slug }));
+}
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -20,7 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: post.title,
-    description: post.excerpt,
+    description: post.excerpt || undefined,
+    alternates: {
+      canonical: `/news/${slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt || undefined,
@@ -49,24 +66,17 @@ export default async function NewsArticlePage({ params }: Props) {
   return (
     <article className="flex flex-col gap-12 pt-8 pb-32 max-w-3xl mx-auto">
       {/* JSON-LD Script for SEO E-E-A-T */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "NewsArticle",
-            "headline": post.title,
-            "image": post.cover_image_url ? [post.cover_image_url] : [],
-            "datePublished": post.published_at || post.created_at,
-            "dateModified": post.updated_at,
-            "author": [{
-              "@type": "Person",
-              "name": post.author?.name || "Fathom Layer",
-              "url": post.author?.social_links?.x || ""
-            }],
-            "description": post.excerpt
-          })
-        }}
+      <JsonLd 
+        data={articleLd({
+          title: post.title,
+          description: post.excerpt || "",
+          url: `${SITE_URL}/news/${slug}`,
+          datePublished: post.published_at || post.created_at,
+          dateModified: post.updated_at,
+          authorName: post.author?.name || "Fathom Layer Editorial Team",
+          image: post.cover_image_url || undefined,
+          isNews: true
+        })} 
       />
 
       <header className="flex flex-col gap-8">

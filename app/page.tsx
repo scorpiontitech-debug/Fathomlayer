@@ -2,7 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { HeroCanvas } from "@/components/three/HeroCanvas";
-import { getEditorialPages, getIndexableCategories, getPublishedSetups, getTrendingItems } from "@/lib/queries";
+import { 
+  getEditorialPages, 
+  getIndexableCategories, 
+  getPublishedSetups, 
+  getTrendingItems,
+  getLatestNews,
+  getTopRankedProducts,
+  getRecentEditorials
+} from "@/lib/queries";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import { PILLARS, PILLAR_KEYS } from "@/lib/taxonomy";
 
@@ -12,6 +20,10 @@ import { QuickCompare } from "@/components/QuickCompare";
 import { DataRing } from "@/components/DataRing";
 import { ScatterPlot } from "@/components/ScatterPlot";
 import { LiveReviews } from "@/components/LiveReviews";
+
+import { LatestNewsFeed } from "@/components/home/LatestNewsFeed";
+import { TopRankedShowcase } from "@/components/home/TopRankedShowcase";
+import { EditorialGrid } from "@/components/home/EditorialGrid";
 
 // ... [existing imports]
 export const revalidate = 3600;
@@ -53,13 +65,16 @@ const MARQUEE = [
 ];
 
 export default async function HomePage() {
-  const [categories, glossary, guides, launches, setups, trendingItems] = await Promise.all([
+  const [categories, glossary, guides, launches, setups, trendingItems, latestNews, topRanked, recentEditorials] = await Promise.all([
     getIndexableCategories(),
     getEditorialPages("glossary"),
     getEditorialPages("guide"),
     getEditorialPages("launch"),
     getPublishedSetups(),
     getTrendingItems(),
+    getLatestNews(4),
+    getTopRankedProducts(3),
+    getRecentEditorials(4),
   ]);
   const indexedItems = categories.reduce((n, c) => n + c.active_listing_count, 0);
   const referenceEntries = glossary.length + guides.length + launches.length;
@@ -123,7 +138,12 @@ export default async function HomePage() {
         </dl>
       </section>
 
+      {latestNews.length > 0 && <LatestNewsFeed posts={latestNews} />}
+      {topRanked.length > 0 && <TopRankedShowcase products={topRanked} />}
+
       <QuickCompare />
+
+      {recentEditorials.length > 0 && <EditorialGrid editorials={recentEditorials} />}
 
       {/* MARQUEE — vocabulário do índice em movimento contínuo */}
       <section aria-hidden className="marquee -mx-5 border-y border-edge py-5">
