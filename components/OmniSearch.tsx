@@ -3,6 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConsultantChat } from "./ConsultantChat";
+import { Zap } from "lucide-react";
+
+const JARGON_DICT: Record<string, { raw: string; brand: string }> = {
+  "retina": { raw: "High-density IPS LCD or OLED display (typically >300 PPI)", brand: "Apple" },
+  "super retina xdr": { raw: "OLED display with peak HDR brightness (usually 1200+ nits)", brand: "Apple" },
+  "promotion": { raw: "Variable refresh rate panel (typically up to 120Hz)", brand: "Apple" },
+  "liquid retina": { raw: "Standard IPS LCD with rounded corners", brand: "Apple" },
+  "blast processing": { raw: "DMA trick to transfer graphics data faster (historical)", brand: "Sega" },
+  "qled": { raw: "Standard LCD TV with a Quantum Dot color filter layer", brand: "Samsung" },
+  "dynamic amoled": { raw: "OLED panel with HDR10+ support and variable refresh rate", brand: "Samsung" },
+  "infinity-o": { raw: "Display with a hole-punch camera cutout", brand: "Samsung" },
+};
 
 export function OmniSearch() {
   const [isFocused, setIsFocused] = useState(false);
@@ -29,10 +41,13 @@ export function OmniSearch() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (jargonMatch) return; // Block search if a jargon card is showing
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query)}`);
     }
   };
+
+  const jargonMatch = JARGON_DICT[query.trim().toLowerCase()];
 
   return (
     <div className="relative z-50 mx-auto mt-12 w-full max-w-2xl">
@@ -94,6 +109,29 @@ export function OmniSearch() {
             </button>
           </div>
           <ConsultantChat />
+        </div>
+      )}
+
+      {/* B.S. Translator (Marketing Jargon Interceptor) */}
+      {!aiMode && jargonMatch && (
+        <div className="absolute top-[110%] w-full animate-in slide-in-from-top-2 fade-in duration-300">
+          <div className="bg-surface border border-edge rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
+            
+            <div className="flex items-center gap-2 mb-4">
+              <div className="bg-accent/20 p-1.5 rounded-md">
+                <Zap className="w-4 h-4 text-accent-bright" />
+              </div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-bright">B.S. Translator Intercepted</span>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-mono text-dim line-through decoration-edge-strong">Marketing Jargon: "{query}" ({jargonMatch.brand})</span>
+              <span className="font-display text-2xl font-bold text-ink">Raw Spec: {jargonMatch.raw}</span>
+            </div>
+            
+            <p className="mt-4 text-xs font-mono uppercase tracking-widest text-faint">Search suspended to prevent marketing interference.</p>
+          </div>
         </div>
       )}
     </div>

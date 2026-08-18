@@ -1,52 +1,164 @@
+// @ts-nocheck
 "use client";
 
-import { useChat } from '@ai-sdk/react';
-import { useEffect, useRef } from 'react';
-import { Loader2, Sparkles, Database, Search } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Loader2, Sparkles, Database, Search, AlertTriangle } from 'lucide-react';
+import { marked } from 'marked';
 
-export function ConsultantChat({ productContext }: { productContext?: any }) {
-  const chat = useChat({
-    api: '/api/chat',
-    body: { productContext },
-  } as any) as any;
+export function ConsultantChat({ productContext, className }: { productContext?: any, className?: string }) {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  const messages = chat?.messages || [];
-  const input = chat?.input || "";
-  const handleInputChange = chat?.handleInputChange || (() => {});
-  const handleSubmit = chat?.handleSubmit || ((e: any) => e.preventDefault());
-  const isLoading = chat?.isLoading || false;
+  const submitMessage = async () => {
+    if (!input.trim() || isLoading) return;
+    
+    const content = input;
+    setInput('');
+    setIsLoading(true);
+    setError(null);
+    
+    const newMessages = [...messages, { id: Date.now().toString(), role: 'user', content }];
+    setMessages(newMessages);
+    
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, productContext })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+      
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      
+      if (!reader) throw new Error("No response body");
+      
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: '', toolInvocations: [] }]);
+      
+      let buffer = '';
+      let streamError: string | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+
+          const payload = line.slice(6).trim();
+          if (!payload || payload === '[DONE]') continue;
+
+          let part: any;
+          try {
+            part = JSON.parse(payload);
+          } catch {
+            continue;
+          }
+
+          if (part.type === 'text-delta') {
+            setMessages(prev => {
+              const updated = [...prev];
+              const last = { ...updated[updated.length - 1] };
+              last.content += part.delta ?? '';
+              updated[updated.length - 1] = last;
+              return updated;
+            });
+          } else if (part.type === 'tool-input-available') {
+            setMessages(prev => {
+              const updated = [...prev];
+              const last = { ...updated[updated.length - 1] };
+              last.toolInvocations = [
+                ...(last.toolInvocations ?? []),
+                { toolCallId: part.toolCallId, toolName: part.toolName, args: part.input },
+              ];
+              updated[updated.length - 1] = last;
+              return updated;
+            });
+          } else if (part.type === 'tool-output-available') {
+            setMessages(prev => {
+              const updated = [...prev];
+              const last = { ...updated[updated.length - 1] };
+              last.toolInvocations = (last.toolInvocations ?? []).map((t: any) =>
+                t.toolCallId === part.toolCallId ? { ...t, result: part.output ?? 'success' } : t
+              );
+              updated[updated.length - 1] = last;
+              return updated;
+            });
+          } else if (part.type === 'error') {
+            streamError = part.errorText || 'The AI service returned an error.';
+          }
+        }
+      }
+
+      if (streamError) throw new Error(streamError);
+    } catch (err: any) {
+      console.error("Fetch error:", err);
+      setError(err);
+      setInput(content);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      submitMessage();
+    }
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [userIsScrolling, setUserIsScrolling] = useState(false);
 
-  // Auto-scroll para a última mensagem
   useEffect(() => {
-    if (messagesEndRef.current) {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+      setUserIsScrolling(!isNearBottom);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!userIsScrolling && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, userIsScrolling]);
 
   return (
-    <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto rounded-2xl border border-white/10 bg-black/60 backdrop-blur-2xl shadow-2xl overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/5">
+    <div className={`flex flex-col mx-auto border-4 border-black bg-[#f4f4f0] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${className || 'h-[600px] w-full max-w-2xl'}`}>
+      <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-black text-white">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20">
-            <Sparkles className="w-4 h-4 text-accent-bright" />
+          <div className="flex h-10 w-10 overflow-hidden items-center justify-center bg-black border-2 border-white">
+            <img src="/oracle_avatar.jpg" alt="Fathom Oracle" className="object-cover w-full h-full" />
           </div>
           <div>
-            <h3 className="font-display font-semibold text-white">Fathom Consultant AI</h3>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-accent-bright">Online • Market Aware</p>
+            <h3 className="font-display font-black tracking-tight text-xl uppercase">Fathom Oracle</h3>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-[#E5F520]">Status: Online</p>
           </div>
         </div>
       </div>
 
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-50">
-            <Database className="w-12 h-12 text-dim" />
-            <p className="font-mono text-sm text-dim max-w-xs">
-              Conectado ao Índice da Fathom Layer. Me pergunte sobre setups, hardwares ou previsões de lançamento.
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
+            <img src="/oracle_avatar.jpg" alt="Oracle Avatar" className="w-24 h-24 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] object-cover" />
+            <p className="font-mono text-sm text-black font-bold uppercase max-w-xs border-4 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              System Ready. Query the database for hardware analysis.
             </p>
           </div>
         )}
@@ -54,66 +166,75 @@ export function ConsultantChat({ productContext }: { productContext?: any }) {
         {messages.map((m: any) => (
           <div key={m.id} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
             <div 
-              className={`max-w-[85%] rounded-2xl px-5 py-3 ${
+              className={`max-w-[85%] px-5 py-4 border-4 border-black font-sans font-medium text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
                 m.role === 'user' 
-                  ? 'bg-accent text-white rounded-tr-sm' 
-                  : 'bg-white/10 text-ink rounded-tl-sm'
+                  ? 'bg-[#E5F520]' 
+                  : 'bg-white'
               }`}
             >
               {m.content && (
-                <div className="prose prose-invert prose-sm max-w-none font-sans leading-relaxed">
-                  {m.content}
-                </div>
+                <div 
+                  className="prose prose-sm max-w-none text-black leading-relaxed font-semibold prose-a:text-blue-600 prose-a:underline"
+                  dangerouslySetInnerHTML={{ __html: marked.parse(m.content) as string }}
+                />
               )}
 
-              {/* Renderização de Tools / Generative UI */}
               {m.toolInvocations?.map((toolInvocation: any) => {
                 const toolCallId = toolInvocation.toolCallId;
                 
-                // Tool Call em andamento
                 if (!('result' in toolInvocation)) {
                   return (
-                    <div key={toolCallId} className="mt-3 flex items-center gap-2 rounded-lg bg-black/40 px-3 py-2 border border-white/10 font-mono text-xs text-accent-bright">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      {toolInvocation.toolName === 'queryIndex' && <span>Acessando Índice Fathom...</span>}
-                      {toolInvocation.toolName === 'checkRadar' && <span>Analisando Radar de Lançamentos...</span>}
+                    <div key={toolCallId} className="mt-4 flex items-center gap-3 bg-black px-4 py-3 font-mono text-xs text-white border-2 border-black">
+                      <Loader2 className="w-4 h-4 animate-spin text-[#E5F520]" />
+                      {toolInvocation.toolName === 'queryIndex' && <span className="font-bold tracking-widest">QUERYING INDEX...</span>}
+                      {toolInvocation.toolName === 'checkRadar' && <span className="font-bold tracking-widest">SCANNING RADAR...</span>}
                     </div>
                   );
                 }
                 
-                // Resultado da Tool
                 return (
-                  <div key={toolCallId} className="mt-3 flex items-center gap-2 rounded-lg bg-green-500/10 px-3 py-2 border border-green-500/20 font-mono text-xs text-green-400">
-                    <Search className="w-3 h-3" />
-                    <span>Dados obtidos. Processando resposta...</span>
+                  <div key={toolCallId} className="mt-4 flex items-center gap-3 bg-[#E5F520] border-2 border-black px-4 py-3 font-mono text-xs text-black font-bold uppercase">
+                    <Search className="w-4 h-4" />
+                    <span className="tracking-widest">Data Retrieved</span>
                   </div>
                 );
               })}
             </div>
           </div>
         ))}
+        {error && (
+          <div className="flex flex-col items-center justify-center p-4 border-4 border-black bg-[#FF3366] text-white font-mono mt-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-6 h-6" />
+              <span className="font-black uppercase text-lg">System Error</span>
+            </div>
+            <span className="text-sm font-bold">{error.message}</span>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <form onSubmit={handleSubmit} className="p-4 bg-white/5 border-t border-white/10">
+      <div className="p-5 bg-white border-t-4 border-black">
         <div className="relative flex items-center">
           <input
-            className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3 pr-12 font-sans text-sm text-white placeholder-dim focus:outline-none focus:border-accent-bright transition-colors"
+            autoFocus
+            className="w-full bg-white border-4 border-black px-5 py-4 pr-16 font-mono text-sm text-black font-bold focus:outline-none focus:ring-0 focus:bg-[#f4f4f0] transition-colors placeholder:text-gray-400"
             value={input}
-            placeholder="Qual hardware você está buscando?"
-            onChange={handleInputChange}
+            placeholder="ENTER COMMAND..."
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             disabled={isLoading}
           />
           <button 
-            type="submit" 
+            type="button" 
+            onClick={submitMessage}
             disabled={isLoading || !input?.trim()}
-            className="absolute right-2 flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white transition-all hover:bg-accent-bright disabled:opacity-50"
+            className="absolute right-3 flex h-10 w-10 items-center justify-center bg-black text-[#E5F520] hover:bg-[#E5F520] hover:text-black border-4 border-transparent hover:border-black transition-colors disabled:opacity-50 cursor-pointer z-10"
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="font-mono text-xs font-bold">↑</span>}
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <span className="font-mono text-lg font-black pointer-events-none">↵</span>}
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Agent } from '@mastra/core/agent';
 import { z } from 'zod';
 
-import { anthropic } from '@ai-sdk/anthropic';
+import { google } from '@ai-sdk/google';
 
 // Criação do Agente Corporativo com Mastra
 // Este agente substitui o fluxo de execução linear (antigo deep-research.ts)
@@ -16,7 +16,7 @@ export const contentResearcherAgent = new Agent({
     Pesquise o tema, rascunhe a estrutura, e antes de publicar, salve o rascunho.
     Sempre respeite as regras de tipagem do Supabase (Zod schemas).
   `,
-  model: anthropic('claude-3-5-sonnet-20241022'),
+  model: google('gemini-3.5-flash'),
   tools: {
     saveDraft: {
       description: 'Salva um rascunho de artigo na base de dados para aprovação humana.',

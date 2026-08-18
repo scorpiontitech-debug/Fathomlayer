@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { ProductCard, SoftwareCard } from "@/components/cards";
+import { AffinityTracker } from "@/components/AffinityTracker";
 import { getCategoryBySlug, getCategoryListings, getIndexableCategories } from "@/lib/queries";
 import { breadcrumbLd, itemListLd } from "@/lib/seo";
 import { pillarBySlug, pillarByKey } from "@/lib/taxonomy";
@@ -130,6 +131,12 @@ export default async function CategoryPage({
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-dim">
             No items published in this category yet.
           </p>
+        </div>
+      ) : null}
+
+      {total > 0 ? (
+        <div className="pt-10">
+          <AffinityTracker categorySlug={category.slug} weight={1} />
         </div>
       ) : null}
     </div>

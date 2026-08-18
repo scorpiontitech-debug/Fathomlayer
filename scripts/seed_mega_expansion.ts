@@ -46,23 +46,23 @@ Next, wrap the MCP tools into CrewAI tasks. Instead of hardcoding prompts, defin
   },
   {
     content_type: "glossary",
-    title: "O que é Agentic RAG (Retrieval-Augmented Generation Ativo)?",
+    title: "What is Agentic RAG (Active Retrieval-Augmented Generation)?",
     slug: "o-que-e-agentic-rag-retrieval-augmented-generation-ativo",
-    content_language: "pt",
+    content_language: "en",
     status: "published",
     is_indexable: true,
     tags: ["agentic-ai", "rag", "software", "enterprise"],
-    body_markdown: `**Agentic RAG é uma evolução do RAG tradicional onde um Agente Autônomo de IA decide dinamicamente quando, onde e como buscar informações em bancos de dados, em vez de depender de uma única busca vetorial fixa.** Ele adiciona raciocínio ativo ao processo de recuperação.
+    body_markdown: `**Agentic RAG is an evolution of traditional RAG where an Autonomous AI Agent dynamically decides when, where, and how to search for information in databases, rather than relying on a single fixed vector search.** It adds active reasoning to the retrieval process.
 
-## RAG Clássico vs. Agentic RAG
+## Classic RAG vs. Agentic RAG
 
-No modelo tradicional, quando um usuário faz uma pergunta, o sistema converte a pergunta em um *embedding*, busca os trechos mais próximos no banco de dados e os joga no [LLM (Large Language Model)](/glossary/what-is-an-llm) para gerar uma resposta. O problema é que, se a busca inicial falhar, a IA alucina.
+In the traditional model, when a user asks a question, the system converts it into an *embedding*, searches the database for the closest snippets, and dumps them into the [LLM (Large Language Model)](/glossary/what-is-an-llm) to generate an answer. The problem is that if the initial search fails, the AI hallucinates.
 
-No **Agentic RAG**, o agente de [Inteligência Artificial](/glossary/ai) recebe a tarefa e pensa: *"Preciso buscar no banco vetorial. O resultado não foi suficiente. Vou reformular a busca. Agora vou cruzar com um banco SQL de clientes. Pronto, agora tenho a resposta"*.
+In **Agentic RAG**, the [Artificial Intelligence](/glossary/ai) agent receives the task and thinks: *"I need to search the vector database. The result wasn't enough. I'll reformulate the search. Now I'll cross-reference it with a customer SQL database. Done, now I have the answer"*.
 
-## O Futuro das Arquiteturas B2B
+## The Future of B2B Architectures
 
-Para adoção empresarial (Enterprise AI), o Agentic RAG é obrigatório. Ferramentas que implementam o [Model Context Protocol (MCP)](/glossary/what-is-mcp-model-context-protocol) são fundamentais, pois permitem que o agente navegue de forma segura por diversos silos de dados corporativos para encontrar respostas com precisão cirúrgica.`
+For Enterprise AI adoption, Agentic RAG is mandatory. Tools implementing the [Model Context Protocol (MCP)](/glossary/what-is-mcp-model-context-protocol) are critical, as they allow the agent to safely navigate various corporate data silos to find answers with surgical precision.`
   },
   {
     content_type: "launch",
@@ -89,25 +89,25 @@ Enterprise software companies must adapt. Products that only offer a "chat inter
   // CLUSTER: Edge AI & Hardware Local
   {
     content_type: "guide",
-    title: "Guia Definitivo: Treinando Modelos GGUF no Windows com WSL2 e DirectML",
+    title: "Ultimate Guide: Training GGUF Models on Windows with WSL2 and DirectML",
     slug: "guia-treinando-modelos-gguf-windows-wsl2-directml",
-    content_language: "pt",
+    content_language: "en",
     status: "published",
     is_indexable: true,
     tags: ["hardware", "local-ai", "gpu", "software"],
-    body_markdown: `**Treinar e fazer fine-tuning de modelos quantizados (GGUF) no Windows tornou-se viável e altamente performático através da combinação do WSL2 (Windows Subsystem for Linux) com as pontes nativas do DirectML.** Isso elimina a necessidade de dual-boot para engenheiros de IA focados no ecossistema local.
+    body_markdown: `**Training and fine-tuning quantized models (GGUF) on Windows has become viable and highly performant by combining WSL2 (Windows Subsystem for Linux) with native DirectML bridges.** This eliminates the need for dual-booting for AI engineers focused on the local ecosystem.
 
-## O Desafio do Windows no Machine Learning
+## The Windows Machine Learning Challenge
 
-Historicamente, frameworks de IA e bibliotecas CUDA focavam exclusivamente em ambientes Linux nativos. No entanto, o avanço da arquitetura [Local AI](/glossary/local-ai) exige que desenvolvedores corporativos e entusiastas utilizem as GPUs que já possuem em suas máquinas de trabalho.
+Historically, AI frameworks and CUDA libraries focused exclusively on native Linux environments. However, the advance of the [Local AI](/glossary/local-ai) architecture demands that corporate developers and enthusiasts use the GPUs they already own in their workstations.
 
-O formato **GGUF** revolucionou a inferência em CPU/GPU mista, mas o treinamento exigia ambientes limpos.
+The **GGUF** format revolutionized mixed CPU/GPU inference, but training required clean environments.
 
-## Configurando o Ambiente (WSL2 + DirectML)
+## Setting up the Environment (WSL2 + DirectML)
 
-1. **Instalação do WSL2:** Certifique-se de estar rodando o Ubuntu 22.04+ no WSL2 e que seus drivers NVIDIA (ou AMD Radeon) para Windows estejam na última versão. O WSL2 passará a GPU automaticamente.
-2. **Setup do DirectML:** Se você não possui uma [NVIDIA GPU](/glossary/gpu) e depende de hardware AMD ou Intel NPUs, instalar o pacote \`onnxruntime-directml\` no Python dentro do WSL2 permite aceleração de hardware nativa.
-3. **Unsloth & Llama.cpp:** Utilize bibliotecas como Unsloth para aceleração de matrizes esparsas durante o fine-tuning LoRA, antes de exportar o resultado final de volta para o formato \`GGUF\` universal.`
+1. **WSL2 Installation:** Ensure you are running Ubuntu 22.04+ in WSL2 and that your NVIDIA (or AMD Radeon) Windows drivers are up to date. WSL2 will automatically pass through the GPU.
+2. **DirectML Setup:** If you don't have an [NVIDIA GPU](/glossary/gpu) and rely on AMD hardware or Intel NPUs, installing the \`onnxruntime-directml\` package in Python inside WSL2 enables native hardware acceleration.
+3. **Unsloth & Llama.cpp:** Use libraries like Unsloth for sparse matrix acceleration during LoRA fine-tuning, before exporting the final result back to the universal \`GGUF\` format.`
   },
   {
     content_type: "launch",
@@ -245,18 +245,7 @@ Because Matter standardizes the "schema" of devices (e.g., how a thermostat repo
 async function seedMegaExpansion() {
   console.log("Seeding 10 Mega Expansion Articles...");
   for (const article of articles) {
-    const { data: existing } = await supabase
-      .from("editorial_pages")
-      .select("id")
-      .eq("slug", article.slug)
-      .single();
-
-    if (existing) {
-      console.log(`[SKIPPED] ${article.slug} already exists.`);
-      continue;
-    }
-
-    const { error } = await supabase.from("editorial_pages").insert(article as any);
+    const { error } = await (supabase as any).from("editorial_pages").upsert(article, { onConflict: "slug" });
     if (error) {
       console.error(`[ERROR] ${article.slug}: `, error.message);
     } else {

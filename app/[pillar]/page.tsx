@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategoriesByPillar, getEditorialPages } from "@/lib/queries";
 import { PILLARS, PILLAR_KEYS, matchesPillar, pillarBySlug } from "@/lib/taxonomy";
+import { EcosystemHub } from "@/components/ecosystem/EcosystemHub";
 
 export const revalidate = 3600;
 // dynamicParams true: `false` quebra o prefetch RSC (NoFallbackError) sob ISR.
@@ -48,14 +49,29 @@ export default async function PillarPage({
   // cruzou o Quality Gate — sem burlar o gate, só usando o que já é público.
   const reading = [...guides, ...glossary].filter((p) => matchesPillar(p.tags, pillar.key));
 
+  if (pillar.key === "ecosystem_mobility") {
+    return <EcosystemHub pillar={pillar} categories={categories} />;
+  }
+
   return (
     <div className="space-y-10">
-      <header className="rise-group max-w-2xl">
-        <p className="font-mono text-xs uppercase tracking-[0.22em] text-dim">Pillar</p>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-          {pillar.name}
-        </h1>
-        <p className="mt-3 text-lg leading-relaxed text-dim">{pillar.tagline}</p>
+      <header className="relative rise-group w-full h-[40vh] min-h-[300px] border-4 border-black overflow-hidden bg-black flex flex-col justify-end p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={pillar.image_url} 
+            alt={pillar.name} 
+            className="w-full h-full object-cover opacity-60 mix-blend-luminosity grayscale hover:grayscale-0 transition-all duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-2xl">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-[#E5F520] font-bold">Pillar</p>
+          <h1 className="mt-3 font-display text-5xl font-black tracking-tight sm:text-7xl text-white uppercase">
+            {pillar.name}
+          </h1>
+          <p className="mt-4 text-xl leading-relaxed text-white/80 font-medium max-w-xl">{pillar.tagline}</p>
+        </div>
       </header>
 
       {categories.length > 0 ? (

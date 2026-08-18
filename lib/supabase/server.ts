@@ -4,13 +4,15 @@ import type { Database } from "@/lib/database.types";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
+const publicClient = createClient<Database>(url, publishableKey, {
+  auth: { persistSession: false },
+});
+
 // Leituras públicas: passam pela RLS, então só enxergam o que venceu os
 // quality gates (status published + is_indexable). As páginas herdam a regra
 // de negócio do banco sem reimplementá-la.
 export function supabasePublic() {
-  return createClient<Database>(url, publishableKey, {
-    auth: { persistSession: false },
-  });
+  return publicClient;
 }
 
 // Escrita interna (tracking de cliques em /out, admin/review). Ignora RLS.

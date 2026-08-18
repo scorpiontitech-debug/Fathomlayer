@@ -16,9 +16,14 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { DeepDive, FaqSection, KeyFeatures, VideoEmbed } from "@/components/RichContent";
 import CopyPromptButton from "@/components/CopyPromptButton";
 import { LifecycleBadge, FathomScores, HumanTranslation, PurchaseEssentials } from "@/components/product-features";
-import { ConsultantChat } from "@/components/ConsultantChat";
 import { ProductEcosystem } from "@/components/ProductEcosystem";
-import { DigitalTwinViewer } from "@/components/DigitalTwinViewer";
+import {
+  ConsultantChat,
+  DigitalTwinViewer,
+  EcosystemTCO,
+  ProROICalculator,
+} from "@/components/product-features/LazyBlocks";
+import { AffinityTracker } from "@/components/AffinityTracker";
 import {
   getAggregateRating,
   getAlternativeProducts,
@@ -346,6 +351,7 @@ export default async function DetailPage({
 
     return (
       <article className="space-y-12">
+        <AffinityTracker categorySlug={category.slug} weight={2} />
         <JsonLd data={productLd(p, category, path, aggregateRating)} />
         <JsonLd data={breadcrumbLd(crumbs)} />
 
@@ -446,6 +452,16 @@ export default async function DetailPage({
             <p className="mt-2 text-lg leading-relaxed">{p.description}</p>
           </section>
         ) : null}
+
+        {/* --- Tools Injection --- */}
+        {(category.slug === "smartphones" || category.slug === "tablets" || category.slug === "wearables" || category.slug === "gaming-consoles") && p.price_from ? (
+          <EcosystemTCO basePrice={p.price_from} productName={p.title} brand={p.brand || "Brand"} />
+        ) : null}
+
+        {(p.price_from && p.price_from > 1500) || category.slug === "laptops" || category.slug === "desktops" ? (
+          <ProROICalculator price={p.price_from || 1999} productName={p.title} />
+        ) : null}
+        {/* ----------------------- */}
 
         {p.video_url ? <VideoEmbed url={p.video_url} /> : null}
 
@@ -555,6 +571,7 @@ export default async function DetailPage({
 
   return (
     <article className="space-y-12">
+      <AffinityTracker categorySlug={category.slug} weight={2} />
       <JsonLd data={softwareLd(s, category, path, aggregateRating)} />
       <JsonLd data={breadcrumbLd(crumbs)} />
 

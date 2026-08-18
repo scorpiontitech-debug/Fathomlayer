@@ -1,6 +1,0 @@
-feat(seo): Implement ISR and strict SEO tags for News pages, redesign homepage
-
-- Added generateStaticParams to news/[slug]/page.tsx for edge caching
-- Added canonical tags to avoid duplicate content in GSC
-- Replaced custom JSON-LD script with standard articleLd schema
-- Redesigned the homepage with high-utility components (News, Rankings, Editorial)

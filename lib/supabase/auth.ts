@@ -28,8 +28,8 @@ export async function getSessionUser() {
 export async function requireAdmin() {
   const user = await getSessionUser();
   if (!user) redirect("/admin/login");
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (adminEmail && user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
+  const adminEmail = process.env.ADMIN_EMAIL?.trim();
+  if (!adminEmail || user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
     redirect("/admin/login");
   }
   return user;

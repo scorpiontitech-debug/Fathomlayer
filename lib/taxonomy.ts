@@ -6,16 +6,19 @@ export const PILLARS = {
     slug: "intelligence",
     name: "Intelligence",
     tagline: "AI software, apps, games and frameworks",
+    image_url: "/pillars/intelligence.jpg"
   },
   compute: {
     slug: "compute",
     name: "Compute",
     tagline: "Hardware for processing and productivity",
+    image_url: "/pillars/compute.jpg"
   },
   ecosystem_mobility: {
     slug: "ecosystem",
     name: "Ecosystem & Mobility",
     tagline: "Consumer electronics, gadgets and electric vehicles",
+    image_url: "/pillars/ecosystem.jpg"
   },
 } as const;
 

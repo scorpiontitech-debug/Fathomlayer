@@ -9,7 +9,8 @@ import {
   getTrendingItems,
   getLatestNews,
   getTopRankedProducts,
-  getRecentEditorials
+  getRecentEditorials,
+  getBestOfCategory
 } from "@/lib/queries";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import { PILLARS, PILLAR_KEYS } from "@/lib/taxonomy";
@@ -18,12 +19,17 @@ import { OmniSearch } from "@/components/OmniSearch";
 import { MarketTicker } from "@/components/MarketTicker";
 import { QuickCompare } from "@/components/QuickCompare";
 import { DataRing } from "@/components/DataRing";
-import { ScatterPlot } from "@/components/ScatterPlot";
 import { LiveReviews } from "@/components/LiveReviews";
 
 import { LatestNewsFeed } from "@/components/home/LatestNewsFeed";
 import { TopRankedShowcase } from "@/components/home/TopRankedShowcase";
+import { CategoryRankingsShowcase } from "@/components/home/CategoryRankingsShowcase";
+import { QuickNavCarousel } from "@/components/home/QuickNavCarousel";
+import { SetupsShowcase } from "@/components/home/SetupsShowcase";
 import { EditorialGrid } from "@/components/home/EditorialGrid";
+import { HeroSearchBox } from "@/components/home/HeroSearchBox";
+import { TrendingRadar } from "@/components/home/TrendingRadar";
+import { ToolsSuiteShowcase } from "@/components/home/ToolsSuiteShowcase";
 
 // ... [existing imports]
 export const revalidate = 3600;
@@ -31,38 +37,6 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
-
-const PRINCIPLES = [
-  {
-    n: "01",
-    title: "No paid placement",
-    text: "Ranking positions, scores and badges are not for sale. Sponsored content, when it exists, is labeled and kept apart from the index.",
-  },
-  {
-    n: "02",
-    title: "Human review on every item",
-    text: "Nothing is published without an editor's design score and a written note. The pipeline drafts; a person decides.",
-  },
-  {
-    n: "03",
-    title: "Numbers before adjectives",
-    text: "Specifications come from primary sources and are stated as data — “18.4 h of battery”, never “great battery life”.",
-  },
-];
-
-// Faixa tipográfica: o vocabulário do índice em movimento contínuo.
-const MARQUEE = [
-  "local AI hardware",
-  "agent frameworks",
-  "MCP servers",
-  "premium laptops",
-  "on-device AI",
-  "EV charging",
-  "AR glasses",
-  "smart home",
-  "wearables",
-  "audio",
-];
 
 export default async function HomePage() {
   const [categories, glossary, guides, launches, setups, trendingItems, latestNews, topRanked, recentEditorials] = await Promise.all([
@@ -73,11 +47,19 @@ export default async function HomePage() {
     getPublishedSetups(),
     getTrendingItems(),
     getLatestNews(4),
-    getTopRankedProducts(3),
+    getTopRankedProducts(5),
     getRecentEditorials(4),
   ]);
   const indexedItems = categories.reduce((n, c) => n + c.active_listing_count, 0);
   const referenceEntries = glossary.length + guides.length + launches.length;
+
+  const topPopulatedCategories = [...categories]
+    .sort((a, b) => b.active_listing_count - a.active_listing_count)
+    .slice(0, 6);
+
+  const categoryRankings = (await Promise.all(
+    topPopulatedCategories.map(cat => getBestOfCategory(cat.slug, 3))
+  )).filter(Boolean);
 
   return (
     <div className="space-y-28">
@@ -110,8 +92,10 @@ export default async function HomePage() {
             from primary sources. Never a paid ranking.
           </p>
           
-          <OmniSearch />
-          <MarketTicker />
+          <HeroSearchBox />
+          <div className="mt-12">
+            <MarketTicker />
+          </div>
         </div>
 
         {/* Régua de dados: números reais do banco, no rodapé do hero */}
@@ -138,280 +122,29 @@ export default async function HomePage() {
         </dl>
       </section>
 
+      {/* Quick Nav directly under the hero banner */}
+      {categories.length > 0 && <QuickNavCarousel categories={categories} />}
+
+      <TrendingRadar trendingItems={trendingItems} />
+      
       {latestNews.length > 0 && <LatestNewsFeed posts={latestNews} />}
       {topRanked.length > 0 && <TopRankedShowcase products={topRanked} />}
+      
+      <ToolsSuiteShowcase />
+      
+      {categoryRankings.length > 0 && <CategoryRankingsShowcase rankings={categoryRankings} />}
+      {setups.length > 0 && <SetupsShowcase setups={setups} />}
 
       <QuickCompare />
 
       {recentEditorials.length > 0 && <EditorialGrid editorials={recentEditorials} />}
 
-      {/* MARQUEE — vocabulário do índice em movimento contínuo */}
-      <section aria-hidden className="marquee -mx-5 border-y border-edge py-5">
-        <div className="marquee-track">
-          {[0, 1].map((copy) => (
-            <div key={copy} className="flex shrink-0 items-center">
-              {MARQUEE.map((word) => (
-                <span key={word} className="flex items-center">
-                  <span className="px-6 font-display text-lg font-medium text-faint">
-                    {word}
-                  </span>
-                  <span className="h-1 w-1 rounded-full bg-accent/50" />
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* PRINCÍPIOS — a arma competitiva é a confiança (roadmap #7) */}
-      <section
-        aria-label="Principles"
-        className="reveal grid gap-px overflow-hidden rounded-lg border border-edge bg-edge sm:grid-cols-3"
-      >
-        {PRINCIPLES.map((p) => (
-          <div key={p.n} data-spot className="spot-card relative bg-bg p-7">
-            <span className="ghost-numeral">{p.n}</span>
-            <span className="relative font-mono text-xs text-accent-bright">{p.n}</span>
-            <h2 className="relative mt-4 font-display text-lg font-semibold">{p.title}</h2>
-            <p className="relative mt-2.5 text-sm leading-relaxed text-dim">{p.text}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* BENTO ATIVA — pilares com dados reais */}
-      <section aria-label="The index" className="reveal space-y-5">
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            The index
-          </h2>
-          <span className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
-            Three pillars
-          </span>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-          
-          {/* O NOVO FEED DE TRENDING HARDWARE (Reator 3) */}
-          <div className="col-span-full mb-4 rounded-xl border border-white/10 bg-black/40 backdrop-blur-3xl overflow-hidden shadow-2xl">
-            <div className="border-b border-white/5 bg-white/5 px-6 py-4 flex items-center justify-between">
-              <h3 className="font-display font-semibold text-lg text-white flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-bright"></span>
-                </span>
-                Trending Hardware
-              </h3>
-              <div className="flex gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-accent-bright bg-accent/10 px-2 py-1 rounded">Last 24h</span>
-              </div>
-            </div>
-            
-            <div className="divide-y divide-white/5">
-              {(trendingItems.filter(Boolean) as any[]).slice(0, 5).map((item, idx) => (
-                <Link
-                  key={item.id}
-                  href={`/${item.type === 'software' ? 'software' : 'products'}/${item.slug}`}
-                  data-magnetic
-                  className="magnetic group flex items-center justify-between px-6 py-4 transition-colors hover:bg-white/5"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="font-mono text-xs text-faint">0{idx + 1}</span>
-                    <span className="font-display font-medium text-ink group-hover:text-accent-bright transition-colors">{item.title}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-6">
-                    {/* Data Ring Animation for Score */}
-                    {item.design_score && (
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs text-dim">Design Score</span>
-                        <DataRing score={item.design_score} size={36} strokeWidth={3} />
-                      </div>
-                    )}
-                    <span className="text-dim transition-transform duration-200 group-hover:translate-x-1">→</span>
-                  </div>
-                </Link>
-              ))}
-              
-              {trendingItems.length === 0 && (
-                <div className="px-6 py-8 text-center text-sm text-dim font-mono">
-                  No trending data available yet.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {PILLAR_KEYS.map((key, i) => {
-            const pillar = PILLARS[key];
-            const pillarCategories = categories.filter((c) => c.pillar === key);
-            const itemCount = pillarCategories.reduce((n, c) => n + c.active_listing_count, 0);
-            return (
-              <Link
-                key={key}
-                href={`/${pillar.slug}`}
-                data-spot
-                data-tilt
-                className="spot-card glow-hover tilt group relative flex min-h-[250px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-2"
-              >
-                <span className="ghost-numeral">0{i + 1}</span>
-                <div className="relative">
-                  <span className="font-mono text-xs text-faint">0{i + 1}</span>
-                  <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight">
-                    {pillar.name}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-dim">{pillar.tagline}</p>
-                </div>
-
-                <div className="relative mt-8">
-                  {pillarCategories.length > 0 ? (
-                    <ul className="space-y-1.5 text-sm">
-                      {pillarCategories.slice(0, 3).map((c) => (
-                        <li key={c.id} className="flex items-baseline justify-between gap-3">
-                          <span className="text-dim">{c.name}</span>
-                          <span className="font-mono text-xs tabular-nums text-faint">
-                            {c.active_listing_count}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-
-                  <div className="relative mt-3 h-5 overflow-hidden font-mono text-xs uppercase tracking-[0.14em]">
-                    <span className="absolute inset-x-0 text-faint transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-                      {pillarCategories.length > 0
-                        ? `${itemCount} item${itemCount === 1 ? "" : "s"} indexed`
-                        : "In curation"}
-                    </span>
-                    <span className="absolute inset-x-0 translate-y-5 text-accent-bright transition-transform duration-300 ease-flow group-hover:translate-y-0">
-                      Enter →
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-
-          {/* Setups quando houver; até lá, os guias — que já têm páginas
-              publicadas e não apareciam no bento. Card nenhum deve levar a
-              uma seção vazia. */}
-          <Link
-            href={setups.length > 0 ? "/setups" : "/guides"}
-            data-spot
-            data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-2"
-          >
-            <span className="ghost-numeral">04</span>
-            <div className="relative">
-              <span className="font-mono text-xs text-faint">04</span>
-              <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">
-                {setups.length > 0 ? "Setups" : "Buying guides"}
-              </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-dim">
-                {setups.length > 0
-                  ? "Hand-curated combinations that work together, with the reasoning behind each pick."
-                  : "Decision frameworks for the questions a spec sheet does not answer — how much hardware you actually need, and when to buy."}
-              </p>
-            </div>
-            <div className="relative mt-6 h-5 overflow-hidden font-mono text-xs uppercase tracking-[0.14em]">
-              <span className="absolute inset-x-0 text-faint transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-                {setups.length > 0 ? "Editorial guides" : `${guides.length} guides`}
-              </span>
-              <span className="absolute inset-x-0 translate-y-5 text-accent-bright transition-transform duration-300 ease-flow group-hover:translate-y-0">
-                Enter →
-              </span>
-            </div>
-          </Link>
-
-          {/* Calculadora — ferramenta flagship */}
-          <Link
-            href="/calculator"
-            data-spot
-            data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-accent lg:col-span-2"
-          >
-            <span className="ghost-numeral">05</span>
-            <div className="relative">
-              <span className="font-mono text-xs text-accent-bright">05</span>
-              <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">
-                Local AI Calculator
-              </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-dim">
-                Pick a model, see the memory tier it needs — and the hardware that runs it.
-              </p>
-            </div>
-            <div className="relative mt-6 h-5 overflow-hidden font-mono text-xs uppercase tracking-[0.14em]">
-              <span className="absolute inset-x-0 text-faint transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-                Interactive tool
-              </span>
-              <span className="absolute inset-x-0 translate-y-5 text-accent-bright transition-transform duration-300 ease-flow group-hover:translate-y-0">
-                Try it →
-              </span>
-            </div>
-          </Link>
-
-          {/* Glossário — camada de autoridade, conteúdo já publicado */}
-          <Link
-            href="/glossary"
-            data-spot
-            data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-3"
-          >
-            <span className="ghost-numeral">06</span>
-            <div className="relative">
-              <span className="font-mono text-xs text-faint">06</span>
-              <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">
-                Glossary
-              </h3>
-              <p className="mt-1.5 max-w-md text-sm leading-relaxed text-dim">
-                What the terms actually mean — VRAM, quantization, MCP, on-device AI — written
-                to be precise, not promotional.
-              </p>
-            </div>
-            <div className="relative mt-6 h-5 overflow-hidden font-mono text-xs uppercase tracking-[0.14em]">
-              <span className="absolute inset-x-0 text-faint transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-                {glossary.length} definition{glossary.length === 1 ? "" : "s"}
-              </span>
-              <span className="absolute inset-x-0 translate-y-5 text-accent-bright transition-transform duration-300 ease-flow group-hover:translate-y-0">
-                Read →
-              </span>
-            </div>
-          </Link>
-
-          {/* Metodologia */}
-          <Link
-            href="/methodology"
-            data-spot
-            data-tilt
-            className="spot-card glow-hover tilt group relative flex min-h-[180px] flex-col justify-between rounded-lg border border-edge backdrop-blur-2xl bg-white/5 p-6 hover:border-edge-strong lg:col-span-3"
-          >
-            <span className="ghost-numeral">07</span>
-            <div className="relative">
-              <span className="font-mono text-xs text-faint">07</span>
-              <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">
-                Methodology
-              </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-dim">
-                How the design score is assigned, and why no one can buy a position here.
-              </p>
-            </div>
-            <div className="relative mt-6 h-5 overflow-hidden font-mono text-xs uppercase tracking-[0.14em]">
-              <span className="absolute inset-x-0 text-faint transition-transform duration-300 ease-flow group-hover:-translate-y-5">
-                Public criteria
-              </span>
-              <span className="absolute inset-x-0 translate-y-5 text-accent-bright transition-transform duration-300 ease-flow group-hover:translate-y-0">
-                Read →
-              </span>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      <ScatterPlot />
-
+      {/* Removed Market Microscope */}
       <LiveReviews />
 
       {/* MANIFESTO — os gates como afirmação tipográfica */}
       <section className="reveal relative -mx-5 overflow-hidden border-y border-edge px-5 py-20">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-4xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.24em] text-faint">
             The gate every item passes
           </p>
@@ -419,7 +152,7 @@ export default async function HomePage() {
             <span className="text-accent-bright">3</span> published items before a category is
             indexed. <span className="text-accent-bright">5</span> structured data points
             before an item is published.{" "}
-            <span className="text-dim">Everything else waits.</span>
+            <br/><br/><span className="text-dim">Everything else waits.</span>
           </p>
         </div>
       </section>

@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "fathomlayer.com",
+      },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       }
     ],
   },

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { getBestOfCategory } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { DesignScore } from "@/components/DesignScore";
+import { ExpertScoringBento } from "@/components/product-features/ExpertScoringBento";
 import { pillarByKey } from "@/lib/taxonomy";
 
 export default async function BestOfPage({ params }: { params: Promise<{ category: string }> }) {
@@ -44,9 +44,16 @@ export default async function BestOfPage({ params }: { params: Promise<{ categor
                   <p className="mt-1 font-mono text-sm text-dim">{item.price_text}</p>
                 )}
               </div>
-              {item.design_score !== null && (
-                <DesignScore score={item.design_score} />
-              )}
+              <div className="w-full md:w-1/2 mt-4 md:mt-0">
+                {item.design_score !== null && (
+                  <ExpertScoringBento 
+                    overall={item.design_score || undefined}
+                    performance={(item as any).score_performance || undefined}
+                    value={(item as any).score_value || undefined}
+                    battery={(item as any).score_battery || undefined}
+                  />
+                )}
+              </div>
             </div>
 
             {item.image_url && (

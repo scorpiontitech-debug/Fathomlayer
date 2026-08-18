@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     
     // Support either path-based or tag-based revalidation
     if (body.path) {
-      revalidatePath(body.path);
+      revalidatePath(body.path, "page");
       return NextResponse.json({ revalidated: true, path: body.path, now: Date.now() });
     }
     
