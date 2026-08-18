@@ -441,7 +441,7 @@ export type Database = {
           key_features: string[]
           video_url: string | null
           is_indexable: boolean
-          last_verified_at: string
+          last_verified_at: string | null
           price_currency: string | null
           price_from: number | null
           pros: string[]
@@ -644,7 +644,7 @@ export type Database = {
           key_features: string[]
           video_url: string | null
           is_indexable: boolean
-          last_verified_at: string
+          last_verified_at: string | null
           name: string
           price_currency: string | null
           price_from: number | null
