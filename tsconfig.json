@@ -40,10 +40,6 @@
     "tests",
     "vitest.config.ts",
     "supabase",
-    "agents",
-    "lib/workflows",
-    "mcp-server",
-    "mastra.config.ts",
     "scripts"
   ]
 }

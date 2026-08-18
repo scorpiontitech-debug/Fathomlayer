@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "synthesize": "tsx scripts/synthesize.ts"
+    "synthesize": "tsx scripts/synthesize.ts",
+    "mcp": "tsx mcp-server/fathom_layer_server.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.38",
