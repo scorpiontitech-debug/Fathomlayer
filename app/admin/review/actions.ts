@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { findBannedPhrases } from "@/lib/banned-phrases";
+import { evaluateQualityGate } from "@/lib/quality-gate";
 import { requireAdmin } from "@/lib/supabase/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
@@ -71,12 +72,20 @@ export async function publishItem(input: PublishInput): Promise<ActionResult> {
         ? Object.keys(row.specs).length
         : 0;
   }
-  const combined = specCount + pros.length + cons.length + idealFor.length;
-  if (combined < 5) {
-    return {
-      ok: false,
-      error: `pSEO data gate: needs ≥5 combined specs/pros/cons/ideal-for entries — this item has ${combined}. Add structured data before publishing.`,
-    };
+  // Regra compartilhada com o índice e com os testes (lib/quality-gate.ts).
+  // Antes, este caminho exigia apenas nota não-vazia e 5 campos combinados —
+  // uma nota de 40 caracteres como "Aprovado por Fathom AI" passava, e um item
+  // sem nenhum contra também. Eram exatamente os dois furos por onde o acervo
+  // encheu de páginas fracas.
+  const gate = evaluateQualityGate({
+    editorial_notes: notes,
+    pros,
+    cons,
+    ideal_for: idealFor,
+    specs: Object.fromEntries(Array.from({ length: specCount }, (_, i) => [String(i), true])),
+  });
+  if (!gate.pass) {
+    return { ok: false, error: `Quality gate: ${gate.failures.join(" ")}` };
   }
 
   const publishedAt = new Date().toISOString();

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "synthesize": "tsx scripts/synthesize.ts",
-    "mcp": "tsx mcp-server/fathom_layer_server.ts"
+    "mcp": "tsx mcp-server/fathom_layer_server.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.38",
@@ -48,7 +50,8 @@
     "msw": "^2.15.0",
     "tailwindcss": "^4.1.0",
     "tsx": "^4.23.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   },
   "overrides": {
     "axios": "^1.7.9",
