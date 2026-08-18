@@ -736,7 +736,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      // Busca híbrida (trigrama + expansão de intenção) sobre produtos e
+      // software publicados. Migration 0007.
+      search_catalog: {
+        Args: { q: string; max_results?: number }
+        Returns: {
+          entity: string
+          id: string
+          slug: string
+          title: string
+          brand: string | null
+          price_from: number | null
+          design_score: number | null
+          pros: string[]
+          cons: string[]
+          ideal_for: string[]
+          specs: Json
+          category_slug: string
+          pillar: string
+          score: number
+        }[]
+      }
+      // Janela fixa por bucket. false = estourou o limite. Migration 0007.
+      consume_rate_limit: {
+        Args: { p_bucket: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

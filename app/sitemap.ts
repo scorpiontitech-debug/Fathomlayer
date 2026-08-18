@@ -53,6 +53,8 @@ export default async function sitemap({
       entry("/", undefined, "daily", 1),
       ...PILLAR_KEYS.map((key) => entry(`/${PILLARS[key].slug}`, undefined, "daily", 0.8)),
       entry("/calculator", undefined, "weekly", 0.8),
+      entry("/compute", undefined, "daily", 0.9),
+      entry("/compute/builds", undefined, "daily", 0.8),
       ...(setups.length > 0
         ? [
             entry("/setups", undefined, "weekly", 0.6),

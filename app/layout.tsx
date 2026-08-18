@@ -9,6 +9,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Preloader } from "@/components/Preloader";
 import { CustomCursor } from "@/components/CustomCursor";
+import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
+import { FloatingAssistant } from "@/components/FloatingAssistant";
 import { getEditorialPages, getPublishedSetups } from "@/lib/queries";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import "./globals.css";
@@ -39,15 +41,19 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fathomlayer.com"),
+  // O texto que decide se alguém clica no resultado de busca. Fala da decisão
+  // que o leitor está tentando tomar, não da stack com que o site foi feito —
+  // ninguém procura "phygital agentic ecosystem".
   title: {
-    default: "Fathom Layer — The Global Phygital & Agentic AI Platform",
+    default: "Fathom Layer — What to buy for local AI, and what to skip",
     template: "%s — Fathom Layer",
   },
   description:
-    "An advanced cybernetic ecosystem bridging physical and digital worlds through Agentic AI (Mastra), WebNN Edge computing, and IoT Matter Digital Twins.",
+    "Independent, spec-first analysis of hardware and software for running AI locally: workstations, laptops, MCP servers, agent frameworks, wearables and EVs. Numbers before adjectives, and every trade-off named.",
   openGraph: {
-    title: "Fathom Layer — The Global Phygital & Agentic AI Platform",
-    description: "Bridging physical and digital worlds with Agentic AI and Digital Twins.",
+    title: "Fathom Layer — What to buy for local AI, and what to skip",
+    description:
+      "Spec-first analysis of the hardware and software worth buying. Numbers before adjectives, every trade-off named.",
     url: "https://fathomlayer.com",
     siteName: "Fathom Layer",
     locale: "en_US",
@@ -55,8 +61,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fathom Layer — The Global Phygital & Agentic AI Platform",
-    description: "Bridging physical and digital worlds with Agentic AI and Digital Twins.",
+    title: "Fathom Layer — What to buy for local AI, and what to skip",
+    description:
+      "Spec-first analysis of the hardware and software worth buying. Numbers before adjectives, every trade-off named.",
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "add-your-google-site-verification-code-here",
@@ -96,6 +103,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <div className="sticky bottom-0 z-0">
             <SiteFooter showRadar={launches.length > 0} />
           </div>
+          <GlobalCommandPalette />
+          <FloatingAssistant />
           <CustomCursor />
         </SmoothScroll>
         <Analytics />

@@ -1,93 +1,132 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
-import { supabasePublic } from '@/lib/supabase/server';
+import { supabaseAdmin, supabasePublic } from '@/lib/supabase/server';
 
 export const maxDuration = 30;
 
-// SYSTEM PROMPT MESTRE
-const systemPrompt = `Você é a Fathom Consultant AI, a inteligência central da Fathom Layer.
-Sua função é atuar como o mais inteligente, técnico e imparcial consultor de hardware e tecnologia do mundo.
+// Endpoint público que chama um LLM pago. Sem teto, um laço de requisições
+// cai direto na fatura. Janela fixa por IP, contada no banco — contador em
+// memória não serve porque cada instância serverless teria a sua.
+const RATE_LIMIT = { calls: 12, windowSeconds: 60 * 10 };
 
-DIRETRIZES:
-1. NÚMEROS ANTES DE ADJETIVOS: Nunca use jargões de marketing vazios ("revolucionário", "incrível"). Use especificações técnicas (ex: "tem 24GB de VRAM GDDR6X", "pesa 1.2kg").
-2. CONHECIMENTO DE MERCADO: Você tem acesso ao banco de dados da Fathom Layer, que cobre Ecosystem & Mobility (EVs, Smartphones), Compute (Workstations, Laptops) e Intelligence (Software AI).
-3. USE AS FERRAMENTAS: Se o usuário pedir recomendações ou comparar hardwares, USE a ferramenta 'queryIndex' para ler os dados reais do banco. Nunca invente dados.
-4. ESTILO DE COMUNICAÇÃO: Cinematográfico, direto, profissional, com tom de um "Oráculo Tecnológico" ou "Terminal de Dados". Formate sua resposta usando listas limpas.
-5. IDIOMA: Responda em Português do Brasil a menos que especificado de outra forma.`;
+// Tetos de payload: independem do rate limit e cortam o abuso mais barato,
+// que é mandar uma conversa gigante de uma vez só.
+const MAX_MESSAGES = 24;
+const MAX_CHARS_PER_MESSAGE = 4000;
+
+const systemPrompt = `You are the Fathom Layer Consultant — the platform's technical advisor on hardware, software and consumer technology.
+
+GUIDELINES
+1. NUMBERS BEFORE ADJECTIVES. Never use empty marketing language ("revolutionary", "amazing"). Use specifications ("24GB of GDDR6X", "1.2kg", "18 TOPS").
+2. THE CATALOG IS THE SOURCE OF TRUTH. Call 'searchCatalog' before recommending anything. If it returns nothing, say the catalog does not cover it yet — never invent a product, a price or a spec.
+3. NAME THE TRADE-OFF. Every recommendation states who it is wrong for, not only who it is right for. If two items are close, say what separates them.
+4. STAY IN SCOPE. The catalog covers Compute (workstations, laptops, peripherals), Intelligence (AI software, agent frameworks, MCP servers) and Ecosystem & Mobility (smartphones, audio, wearables, AR, EVs, smart home).
+5. TONE. Direct, technical, unhurried. Clean lists over dense paragraphs. No preamble.
+6. LANGUAGE. Answer in the language the reader used.`;
+
+type ChatMessage = { role: string; content: unknown };
+
+function clientKey(req: Request): string {
+  const forwarded = req.headers.get('x-forwarded-for');
+  const ip = forwarded?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown';
+  return `chat:${ip}`;
+}
 
 export async function POST(req: Request) {
   const { messages, productContext } = await req.json();
 
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return new Response('No messages provided.', { status: 400 });
+  }
+  if (messages.length > MAX_MESSAGES) {
+    return new Response('Conversation too long. Start a new one.', { status: 413 });
+  }
+  const oversized = (messages as ChatMessage[]).some(
+    (m) => typeof m.content === 'string' && m.content.length > MAX_CHARS_PER_MESSAGE
+  );
+  if (oversized) {
+    return new Response('Message too long.', { status: 413 });
+  }
+
+  // O contador vive numa tabela com RLS fechada, então prefere a service key.
+  // Sem ela (dev sem .env completo) o gate simplesmente não roda — melhor que
+  // derrubar o chat inteiro em ambiente local.
+  const limiter = supabaseAdmin();
+  if (limiter) {
+    const { data: allowed, error } = await limiter.rpc('consume_rate_limit', {
+      p_bucket: clientKey(req),
+      p_limit: RATE_LIMIT.calls,
+      p_window_seconds: RATE_LIMIT.windowSeconds,
+    });
+    // Erro no gate não pode derrubar o chat; só a negação explícita bloqueia.
+    if (!error && allowed === false) {
+      return new Response(
+        'You have reached the request limit for the Consultant. Try again in a few minutes.',
+        { status: 429, headers: { 'Retry-After': String(RATE_LIMIT.windowSeconds) } }
+      );
+    }
+  }
+
   let finalSystemPrompt = systemPrompt;
   if (productContext) {
-    finalSystemPrompt += `\n\nATENÇÃO: O usuário está atualmente visualizando o seguinte produto. Se ele fizer perguntas implícitas ("este notebook", "a bateria é boa?"), refira-se a este produto:\n${JSON.stringify(productContext, null, 2)}`;
+    finalSystemPrompt += `\n\nThe reader is currently viewing this item. Resolve implicit references ("this laptop", "is the battery good?") against it:\n${JSON.stringify(productContext, null, 2)}`;
   }
 
   const result = streamText({
-    model: anthropic('claude-3-5-sonnet-latest'),
+    model: anthropic('claude-opus-5'),
     system: finalSystemPrompt,
     messages,
     tools: {
-      queryIndex: tool({
-        description: 'Busca hardwares ou softwares no banco de dados da Fathom Layer baseando-se no tipo de produto (categoria) ou palavras-chave. Retorna uma lista dos itens mais relevantes (specs, prós, contras e preço de referência).',
-        parameters: z.object({
-          query: z.string().describe('O que o usuário está buscando (ex: laptop para IA, EV, fone com cancelamento de ruído)'),
-          type: z.enum(['product', 'software', 'all']).describe('Filtra entre hardware(product) ou software, ou ambos(all)'),
-          limit: z.number().optional().default(5).describe('Número máximo de resultados')
+      searchCatalog: tool({
+        description:
+          'Search published hardware and software in the Fathom Layer catalog. Accepts a natural-language need ("laptop for running local models", "noise cancelling headphones") — it expands intent to domain terms, so pass the reader\'s actual question rather than a single keyword.',
+        inputSchema: z.object({
+          query: z.string().describe('What the reader is looking for, in their own words.'),
+          limit: z.number().int().min(1).max(10).optional()
+            .describe('How many results to return. Defaults to 6.'),
         }),
-        // @ts-ignore: AI SDK typing glitch
-        execute: async ({ query, type, limit }: any) => {
-          const client = supabasePublic();
-          let results = [];
-          
-          if (type === 'product' || type === 'all') {
-            const { data: products } = await client
-              .from('products')
-              .select('id, title, brand, price_from, design_score, specs, pros, cons, ideal_for')
-              .eq('status', 'published')
-              .ilike('title', `%${query}%`)
-              .order('design_score', { ascending: false })
-              .limit(limit);
-              
-            if (products) results.push(...products.map(p => ({ ...p, entity: 'product' })));
-          }
-
-          if (type === 'software' || type === 'all') {
-            const { data: software } = await client
-              .from('software')
-              .select('id, name, price_text, pros, cons, ideal_for')
-              .eq('status', 'published')
-              .ilike('name', `%${query}%`)
-              .limit(limit);
-              
-            if (software) results.push(...software.map(s => ({ ...s, entity: 'software' })));
-          }
-
-          return results as any;
+        execute: async ({ query, limit }) => {
+          const { data, error } = await supabasePublic().rpc('search_catalog', {
+            q: query,
+            max_results: limit ?? 6,
+          });
+          if (error) return { error: 'Catalog search failed.', results: [] };
+          return {
+            results: data ?? [],
+            note: (data?.length ?? 0) === 0
+              ? 'Nothing in the catalog matches. Say so — do not substitute outside knowledge as if it were catalog data.'
+              : undefined,
+          };
         },
       }),
       checkRadar: tool({
-        description: 'Consulta o calendário e o radar de lançamentos da tecnologia para prever se um equipamento ficará obsoleto em breve.',
-        parameters: z.object({
-          keyword: z.string().describe('A marca ou o tipo de tecnologia (ex: RTX 5090, Apple M4, Tesla)')
+        description:
+          'Check the launch radar to see whether a replacement or successor is expected soon — use it before recommending a purchase that might be about to be superseded.',
+        inputSchema: z.object({
+          keyword: z.string().describe('Brand, product line or technology (e.g. "RTX 5090", "Apple M4", "Tesla").'),
         }),
-        // @ts-ignore: AI SDK typing glitch
-        execute: async ({ keyword }: any) => {
-          const client = supabasePublic();
-          const { data } = await client
+        execute: async ({ keyword }) => {
+          const { data } = await supabasePublic()
             .from('editorial_pages')
-            .select('title, expected_release_date, launch_confidence')
+            .select('title, expected_release_date, launch_confidence, slug')
             .eq('content_type', 'launch')
-            .ilike('title', `%${keyword}%`)
             .eq('status', 'published')
+            .ilike('title', `%${keyword}%`)
             .limit(3);
-            
-          return (data ?? []) as any;
+          return { launches: data ?? [] };
         },
       }),
     },
   });
 
-  return result.toTextStreamResponse();
+  return result.toUIMessageStreamResponse({
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('rate_limit') || message.includes('overloaded')) {
+        return 'The Consultant is at capacity right now. Try again in a moment.';
+      }
+      return 'Something went wrong reaching the Consultant.';
+    },
+  });
 }

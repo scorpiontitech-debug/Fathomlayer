@@ -1,6 +1,6 @@
 import { supabasePublic } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/database.types";
-import type { PillarKey } from "@/lib/taxonomy";
+import { PILLARS, type PillarKey } from "@/lib/taxonomy";
 
 export type Category = Tables<"categories">;
 export type Product = Tables<"products">;
@@ -131,7 +131,7 @@ export async function getLatestNews(limit: number = 4) {
 export async function getTopRankedProducts(limit: number = 6) {
   const { data } = await supabasePublic()
     .from("products")
-    .select("id, title, slug, design_score, image_url, description, category_id, categories(name, slug, pillar)")
+    .select("id, title, slug, design_score, image_url, description, category_id, price_from, price_currency, categories(name, slug, pillar)")
     .eq("status", "published")
     .not("design_score", "is", null)
     .order("design_score", { ascending: false })
@@ -162,7 +162,7 @@ export async function getBestOfCategory(categorySlug: string, limit: number = 5)
   // Fetch top products
   const { data: products } = await supabasePublic()
     .from("products")
-    .select("id, title, slug, design_score, image_url, description, status")
+    .select("id, title, slug, design_score, score_performance, score_value, score_battery, image_url, description, price_from, price_currency, status")
     .eq("category_id", category.id)
     .order("design_score", { ascending: false })
     .limit(limit);
@@ -170,7 +170,7 @@ export async function getBestOfCategory(categorySlug: string, limit: number = 5)
   // Fetch top software
   const { data: software } = await supabasePublic()
     .from("software")
-    .select("id, name, slug, image_url, price_text, description, status, updated_at")
+    .select("id, name, slug, image_url, price_text, price_from, price_currency, description, status, updated_at")
     .eq("category_id", category.id)
     .order("updated_at", { ascending: false })
     .limit(limit);
@@ -234,15 +234,35 @@ export async function getTrendingItems() {
 
   const sortedEntities = Array.from(entityMap.entries()).sort((a, b) => b[1].score - a[1].score).slice(0, 10);
   
+  // O href sai daqui, não da página. A página antiga montava
+  // `/hardware/gpu/{slug}` e `/software/ai/{slug}` — rotas que nunca
+  // existiram no app, então todo item da lista era um 404.
   const results = await Promise.all(sortedEntities.map(async ([key, data]) => {
     const id = key.split(":")[1];
-    if (data.type === "product") {
-      const p = await getProductById(id);
-      return p ? { ...p, type: "product", title: p.title } : null;
-    } else {
-      const { data: s } = await supabasePublic().from("software").select("*").eq("id", id).single();
-      return s ? { ...s, type: "software", title: s.name } : null;
-    }
+    const table = data.type === "product" ? "products" : "software";
+    const { data: row } = await supabasePublic()
+      .from(table)
+      .select("*, categories(slug, pillar)")
+      .eq("id", id)
+      .eq("status", "published")
+      .maybeSingle();
+    if (!row) return null;
+
+    const rel = (row as { categories?: unknown }).categories;
+    const cat = (Array.isArray(rel) ? rel[0] : rel) as
+      | { slug: string; pillar: string }
+      | null
+      | undefined;
+    const pillar = cat ? PILLARS[cat.pillar as PillarKey] : null;
+    if (!cat || !pillar) return null;
+
+    const r = row as Record<string, unknown>;
+    return {
+      ...r,
+      type: data.type,
+      title: (data.type === "product" ? r.title : r.name) as string,
+      href: `/${pillar.slug}/${cat.slug}/${r.slug as string}`,
+    };
   }));
 
   return results.filter(Boolean);
@@ -466,4 +486,38 @@ export async function getResolvedSetupItems(setupId: string): Promise<ResolvedSe
       };
     })
     .filter((r) => r.product || r.software);
+}
+
+export async function getLatestLaunches(limit: number = 10) {
+  const [productsRes, softwareRes] = await Promise.all([
+    supabasePublic()
+      .from("products")
+      .select("id, title, slug, image_url, description, price_from, price_currency, created_at, category_id, categories(name, slug, pillar)")
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(limit),
+    supabasePublic()
+      .from("software")
+      .select("id, name, slug, image_url, description, price_from, price_currency, created_at, category_id, categories(name, slug, pillar)")
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+  ]);
+
+  const products = (productsRes.data || []).map((i: any) => ({ ...i, type: 'product' }));
+  const software = (softwareRes.data || []).map((i: any) => ({ ...i, title: i.name, type: 'software' }));
+
+  return [...products, ...software]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, limit);
+}
+
+export async function getPriceHistory(entityId: string, entityType: 'product' | 'software') {
+  const { data } = await supabasePublic()
+    .from("price_history" as any)
+    .select("price, recorded_at")
+    .eq("entity_id", entityId)
+    .eq("entity_type", entityType)
+    .order("recorded_at", { ascending: true });
+  return (data as any[]) || [];
 }

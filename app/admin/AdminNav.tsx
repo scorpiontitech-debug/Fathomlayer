@@ -7,6 +7,7 @@ const TABS = [
   { href: "/admin/review", label: "Review queue" },
   { href: "/admin/editorial", label: "Editorial" },
   { href: "/admin/content-hub", label: "Content Hub (News)" },
+  { href: "/admin/links", label: "Monetisation" },
 ];
 
 // Escondida no login: quem não autenticou não deve ver navegação interna.

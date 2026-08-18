@@ -27,7 +27,7 @@ export default async function TrendingPage() {
             {items.map((item: any, index: number) => (
               <li key={item.id} className="group">
                 <Link
-                  href={item.type === "product" ? `/hardware/gpu/${item.slug}` : `/software/ai/${item.slug}`} // Mock routing for MVP
+                  href={item.href}
                   className="flex items-center gap-6 rounded-xl border border-edge bg-surface p-6 transition hover:border-accent-bright"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-surface font-display font-bold text-lg">
